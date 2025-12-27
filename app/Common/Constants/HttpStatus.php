@@ -15,6 +15,7 @@ class HttpStatus
     public const NOT_FOUND = Response::HTTP_NOT_FOUND; // 404
     public const UNPROCESSABLE_ENTITY = Response::HTTP_UNPROCESSABLE_ENTITY; // 422
     public const TOO_MANY_REQUESTS = Response::HTTP_TOO_MANY_REQUESTS; // 429
+    public const CONFLICT = Response::HTTP_CONFLICT; // 409
 
     // 5xx Server Error
     public const INTERNAL_SERVER_ERROR = Response::HTTP_INTERNAL_SERVER_ERROR; // 500
