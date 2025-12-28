@@ -55,7 +55,6 @@ class AuthService extends BaseService implements IAuthService
                 'password' => $data['password'],
             ];
             $token = auth('api')->attempt($credentials);
-            dd($token);
 
             if (!$token) {
                 return [
@@ -65,7 +64,10 @@ class AuthService extends BaseService implements IAuthService
                 ];
             }
 
-            $user = Auth::user();
+            $user = User::query()
+                ->where('username', $credentials['username'])
+                ->first();
+
             $refreshToken = Str::random(64);
 
             RefreshToken::create([

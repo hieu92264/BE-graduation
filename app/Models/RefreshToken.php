@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class RefreshToken extends BaseModel
 {
-    use SoftDeletes, MassPrunable;
+    use MassPrunable;
 
     protected $fillable = [
+        'íactive',
         'user_id',
         'expires_at',
         'token'
