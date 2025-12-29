@@ -55,7 +55,7 @@ class AuthService extends BaseService implements IAuthService
                 'password' => $data['password'],
             ];
 
-            $token = auth('api')->attempt($credentials);
+            $token = Auth::guard('api')->attempt($credentials);
             if (!$token) {
                 return [
                     'success' => false,
@@ -114,8 +114,8 @@ class AuthService extends BaseService implements IAuthService
                 ];
             }
 
-            if (isset($data['refresh_token'])) {
-                RefreshToken::where('token', $data['refresh_token'])->delete();
+            if (isset($refreshToken)) {
+                RefreshToken::where('token', $refreshToken)->delete();
             }
 
             Auth::logout();
@@ -164,8 +164,7 @@ class AuthService extends BaseService implements IAuthService
 
             $newAccessToken = Auth::login($user);
 
-            return $this->respondWithToken($newAccessToken, $newRefreshTokenString);
-
+            return $this->respondWithToken($newAccessToken ?? '', $newRefreshTokenString);
         } catch (Exception $exception) {
             return [
                 'success' => false,
