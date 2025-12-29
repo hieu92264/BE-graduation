@@ -114,7 +114,7 @@ class AuthService extends BaseService implements IAuthService
                 ];
             }
 
-            if (isset($refreshToken)) {
+            if ($refreshToken !== '') {
                 RefreshToken::where('token', $refreshToken)->delete();
             }
 

@@ -40,7 +40,7 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $refreshToken = $request->query('refresh_token') ?? null;
+        $refreshToken = $request->input('refresh_token') ?? '';
         $result = $this->authService->logout($refreshToken);
         return $this->DataResponse(
             true,
