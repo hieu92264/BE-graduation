@@ -54,8 +54,8 @@ class AuthService extends BaseService implements IAuthService
                 'username' => $data['username'],
                 'password' => $data['password'],
             ];
-            $token = auth('api')->attempt($credentials);
 
+            $token = auth('api')->attempt($credentials);
             if (!$token) {
                 return [
                     'success' => false,

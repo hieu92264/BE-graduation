@@ -67,6 +67,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Permission::class, 'permission_user')->withTimestamps();
     }
 
+    public function hasPermission(string $permissionCode): bool
+    {
+        return $this->permissions->contains('code', $permissionCode);
+    }
+
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
