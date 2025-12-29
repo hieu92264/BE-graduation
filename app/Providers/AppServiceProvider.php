@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Interfaces\IAuthService;
+use App\Http\Services\AuthService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,15 +14,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->registerServices();
+        $this->registerRepositories();
     }
 
-    public function registerServices(): void
+    protected function registerServices(): void
     {
         //auth
+        $this->app->singleton(IAuthService::class, AuthService::class);
     }
 
-    public function registerRepositories(): void
+    protected function registerRepositories(): void
     {
         //auth
     }
@@ -30,5 +33,7 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      * view, route, schema, validate
      */
-    public function boot(): void {}
+    public function boot(): void
+    {
+    }
 }

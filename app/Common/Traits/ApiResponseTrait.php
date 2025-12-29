@@ -5,33 +5,62 @@ namespace App\Common\Traits;
 use App\Common\Constants\HttpStatus;
 use App\Common\Constants\ResponseStatus;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ApiResponseTrait
 {
     protected function DataResponse(
-        string $status,
-        string $message,
-        mixed $data = null,
-        mixed $errors = null,
-        int $statusCode = HttpStatus::OK
-    ): JsonResponse {
-        $metaData = [
-            'status' => $status,
-            'message' => $message
+        bool   $success = false,
+        string $message = 'success',
+        int    $code = HttpStatus::OK,
+        ?array $data = []): JsonResponse
+    {
+        $payload = [
+            'status' => $success ? ResponseStatus::SUCCESS : ResponseStatus::ERROR,
+            'message' => $message,
         ];
 
-        if ($status === ResponseStatus::SUCCESS && $data !== null) {
-            $metaData['data'] = $data;
+        if ($success) {
+            $payload['data'] = $data ?? [];
+        } else {
+            $payload['errors'] = $data ?? null;
         }
 
-        if ($status === 'error' && $errors !== null) {
-            $responseStructure['errors'] = $errors;
-        }
+        return response()->json($payload, $code);
+    }
 
-        if ($status === 'error' && !isset($responseStructure['errors'])) {
-            $responseStructure['errors'] = null;
-        }
+    protected function successResponse(array $data = [], string $message = 'Success', int $code = HttpStatus::OK): JsonResponse
+    {
+        return response()->json([
+            'status' => ResponseStatus::SUCCESS,
+            'data' => $data,
+            'message' => $message,
+        ], $code);
+    }
 
-        return response()->json($metaData, $statusCode);
+    protected function failedResponse(string $message = 'Error', int $code = HttpStatus::BAD_REQUEST, mixed $errors = null): JsonResponse
+    {
+        return response()->json([
+            'status' => ResponseStatus::ERROR,
+            'errors' => $errors,
+            'message' => $message,
+        ], $code);
+    }
+
+    protected function paginate(LengthAwarePaginator $paginator, string $message = 'Success'): JsonResponse
+    {
+        return response()->json([
+            'status' => ResponseStatus::SUCCESS,
+            'message' => $message,
+            'data' => $paginator->items(),
+            'meta' => [
+                'current_page' => $paginator->currentPage(),
+                'last_page' => $paginator->lastPage(),
+                'per_page' => $paginator->perPage(),
+                'total' => $paginator->total(),
+                'next_page_url' => $paginator->nextPageUrl(),
+                'prev_page_url' => $paginator->previousPageUrl(),
+            ]
+        ], HttpStatus::OK);
     }
 }
