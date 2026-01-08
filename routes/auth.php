@@ -11,9 +11,5 @@ Route::prefix('auth')->controller(AuthController::class)
             Route::get('me', 'me')->name('auth.me');
             Route::post('refresh', 'refreshToken')->name('auth.refresh');
             Route::post('logout', 'logout')->name('auth.logout');
-
-//            Route::post('register', 'register')
-//                ->middleware('check.permission')
-//                ->name('auth.register');
         });
     });

@@ -13,11 +13,14 @@ trait ApiResponseTrait
         bool   $success = false,
         string $message = 'success',
         int    $code = HttpStatus::OK,
-        ?array $data = []): JsonResponse
-    {
+        ?array $data = []
+    ): JsonResponse {
         $payload = [
             'status' => $success ? ResponseStatus::SUCCESS : ResponseStatus::ERROR,
             'message' => $message,
+            'statusCode' => $code,
+            'path' => request()->path(),
+            'timestamp' => now()
         ];
 
         if ($success) {
@@ -35,6 +38,9 @@ trait ApiResponseTrait
             'status' => ResponseStatus::SUCCESS,
             'data' => $data,
             'message' => $message,
+            'statusCode' => $code,
+            'path' => request()->path(),
+            'timestamp' => now()
         ], $code);
     }
 
@@ -44,6 +50,9 @@ trait ApiResponseTrait
             'status' => ResponseStatus::ERROR,
             'errors' => $errors,
             'message' => $message,
+            'statusCode' => $code,
+            'path' => request()->path(),
+            'timestamp' => now()
         ], $code);
     }
 
@@ -52,6 +61,9 @@ trait ApiResponseTrait
         return response()->json([
             'status' => ResponseStatus::SUCCESS,
             'message' => $message,
+            'statusCode' => HttpStatus::OK,
+            'path' => request()->path(),
+            'timestamp' => now(),
             'data' => $paginator->items(),
             'meta' => [
                 'current_page' => $paginator->currentPage(),
