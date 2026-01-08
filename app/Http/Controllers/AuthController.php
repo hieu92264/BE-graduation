@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct(protected IAuthService $authService)
-    {
-    }
+    public function __construct(protected IAuthService $authService) {}
 
     public function login(DoLoginRequest $request): JsonResponse
     {
@@ -52,7 +50,7 @@ class AuthController extends Controller
 
     public function refreshToken(Request $request): JsonResponse
     {
-        $refreshToken = $request->only('refresh_token') ?? '';
+        $refreshToken = $request->input('refresh_token') ?? '';
         $result = $this->authService->refreshToken($refreshToken);
         return $this->DataResponse(
             $result['success'],
