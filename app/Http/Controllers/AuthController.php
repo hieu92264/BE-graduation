@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct(protected IAuthService $authService) {}
+    public function __construct(protected IAuthService $authService)
+    {
+    }
 
     public function login(DoLoginRequest $request): JsonResponse
     {
