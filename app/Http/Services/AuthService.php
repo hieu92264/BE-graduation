@@ -3,8 +3,7 @@
 namespace App\Http\Services;
 
 use App\Common\Constants\HttpStatus;
-use App\Http\_base\BaseService;
-use App\Http\Interfaces\IAuthService;
+use App\Http\Interfaces\AuthServiceInterface;
 use App\Models\Permission;
 use App\Models\RefreshToken;
 use App\Models\User;
@@ -12,7 +11,7 @@ use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-class AuthService extends BaseService implements IAuthService
+class AuthService implements AuthServiceInterface
 {
     public function register(array $data): array
     {

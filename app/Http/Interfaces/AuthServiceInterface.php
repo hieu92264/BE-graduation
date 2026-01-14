@@ -2,7 +2,7 @@
 
 namespace App\Http\Interfaces;
 
-interface IAuthService
+interface AuthServiceInterface
 {
     public function register(array $data): array;
 

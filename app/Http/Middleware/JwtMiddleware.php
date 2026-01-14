@@ -6,6 +6,7 @@ use App\Common\Constants\HttpStatus;
 use App\Common\Traits\ApiResponseTrait;
 use Closure;
 use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,7 @@ class JwtMiddleware
             $user = JWTAuth::parseToken()->authenticate();
 
             if (!$user) {
-                throw new Exception('User not found');
+                throw new AuthenticationException('User not found');
             }
 
             Auth::setUser($user);

@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
-use App\Http\Interfaces\IAuthService;
+use App\Http\Interfaces\AuthServiceInterface;
+use App\Http\Interfaces\EmployeeServiceInterface;
+use App\Http\Interfaces\PermissionServiceInterface;
 use App\Http\Services\AuthService;
+use App\Http\Services\EmployeeService;
+use App\Http\Services\PermissionService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
     protected function registerServices(): void
     {
         //auth
-        $this->app->singleton(IAuthService::class, AuthService::class);
+        $this->app->singleton(AuthServiceInterface::class, AuthService::class);
+        $this->app->singleton(PermissionServiceInterface::class, PermissionService::class);
+        $this->app->singleton(EmployeeServiceInterface::class, EmployeeService::class);
     }
 
     protected function registerRepositories(): void

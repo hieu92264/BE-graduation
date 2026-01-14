@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PermissionController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->controller(AuthController::class)
@@ -12,4 +13,9 @@ Route::prefix('auth')->controller(AuthController::class)
             Route::get('me', 'me')->name('auth.me');
             Route::post('logout', 'logout')->name('auth.logout');
         });
+    });
+
+Route::prefix('permissions')->middleware(['jwt.auth', 'check.permission'])->controller(PermissionController::class)
+    ->group(function () {
+
     });
