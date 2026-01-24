@@ -184,7 +184,7 @@ class AuthService implements AuthServiceInterface
         $user->load(['employee']);
 
         $permissions = ($user->username === 'admin')
-            ? Permission::where('isactive', true)->get()
+            ? Permission::get()
             : $user->permissions;
 
         return [
