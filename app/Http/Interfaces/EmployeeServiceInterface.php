@@ -2,7 +2,9 @@
 
 namespace App\Http\Interfaces;
 
-interface EmployeeServiceInterface
+use App\Http\_base\BaseServiceInterface;
+
+interface EmployeeServiceInterface extends BaseServiceInterface
 {
 
 }
