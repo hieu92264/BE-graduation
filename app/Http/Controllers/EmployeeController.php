@@ -21,6 +21,13 @@ class EmployeeController extends Controller
 
     public function create()
     {
-    
+
+    }
+
+    public function delete(string $id)
+    {
+        $result = $this->employeeService->delete((int)$id);
+        
+        return $this->DataResponse(true, 'Xóa nhân viên thành công', HttpStatus::OK, []);
     }
 }
