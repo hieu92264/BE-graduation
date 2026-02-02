@@ -1,13 +1,11 @@
 <?php
 
 use App\Common\Enums\WorkStatus;
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,8 +16,9 @@ return new class extends Migration
             $table->char('isactive', 1)->default('Y');
 
             $table->foreignId('user_id')
+                ->nullable()
                 ->constrained('users')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table->string('employee_code')->unique();
             $table->string('full_name', 100);

@@ -52,7 +52,7 @@ abstract class BaseService
             return $this->model->create($attributes);
         } catch (Exception $e) {
             Log::error("BaseService Create Error: " . $e->getMessage());
-            throw new Exception("Tạo bản ghi mới thất bại.");
+            throw new Exception("Tạo bản ghi mới thất bại: " . $e->getMessage());
         }
     }
 

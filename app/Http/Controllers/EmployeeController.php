@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Common\Constants\HttpStatus;
 use App\Http\Interfaces\EmployeeServiceInterface;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Http\JsonResponse;
 
 class EmployeeController extends Controller
@@ -19,15 +21,29 @@ class EmployeeController extends Controller
         return $this->DataResponse(true, 'success', HttpStatus::OK, $result);
     }
 
-    public function create()
+    public function create(StoreEmployeeRequest $request): JsonResponse
     {
+        $attributes = $request->validated();
+        $result = $this->employeeService->create($attributes)->toArray();
 
+        return $this->DataResponse(true, 'success', HttpStatus::CREATED, $result);
+    }
+
+    public function update(UpdateEmployeeRequest $request, string $id): JsonResponse
+    {
+        $attributes = $request->validated();
+        $result = $this->employeeService->update((int)$id, $attributes)->toArray();
+
+        return $this->DataResponse(true, 'success', HttpStatus::CREATED, $result);
     }
 
     public function delete(string $id)
     {
         $result = $this->employeeService->delete((int)$id);
-        
-        return $this->DataResponse(true, 'Xóa nhân viên thành công', HttpStatus::OK, []);
+        if ($result) {
+            return $this->DataResponse(true, 'Xóa nhân viên thành công', HttpStatus::OK, ['employeeId' => $id]);
+        }
+
+        return $this->DataResponse(false, 'Xóa nhân viên thất bại', HttpStatus::BAD_REQUEST, null);
     }
 }
