@@ -7,9 +7,10 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 //$routesPath = __DIR__ . '/../routes';
 //$apiRoutes = array_filter(
@@ -45,25 +46,32 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->respond(function (Response $response, Throwable $e) {
-            $data = [
-                'statusCode' => $response->getStatusCode(),
-                'message' => $e->getMessage(),
-                'result' => null,
-            ];
+        $exceptions->respond(function (Response $response, Throwable $e, Request $request) {
+            if ($request->is('api/*')) {
+                $statusCode = ($e instanceof AuthenticationException)
+                    ? 401
+                    : $response->getStatusCode();
 
-            if ($e instanceof AuthenticationException) {
-                $data['statusCode'] = Response::HTTP_UNAUTHORIZED;
+                if ($statusCode === 200) $statusCode = 500;
+
+                $payload = [
+                    'message' => $e->getMessage(),
+                    'statusCode' => $statusCode,
+                    'data' => null,
+                    'path' => $request->path(),
+                    'timestamp' => now()->toISOString(),
+                ];
+
+                if (config('app.env') == Environment::LOCAL) {
+                    $payload['stack'] = "Exception: " . get_class($e) . " in " . $e->getFile() . ":" . $e->getLine();
+                }
+
+                if ($e instanceof ValidationException) {
+                    $payload['data'] = $e->errors();
+                }
+
+                return response()->json($payload, $statusCode);
             }
-
-            if ($e instanceof NotFoundHttpException) {
-                $data['message'] = 'Not found.';
-            }
-
-            if (config('app.env') == Environment::LOCAL) {
-                $data['trace'] = $e->getTrace();
-            }
-
-            return response()->json($data, $data['statusCode']);
+            return $response;
         });
     })->create();

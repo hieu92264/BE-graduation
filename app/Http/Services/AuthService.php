@@ -3,15 +3,15 @@
 namespace App\Http\Services;
 
 use App\Common\Constants\HttpStatus;
-use App\Http\_base\BaseService;
-use App\Http\Interfaces\IAuthService;
+use App\Http\Interfaces\AuthServiceInterface;
+use App\Models\Permission;
 use App\Models\RefreshToken;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
-class AuthService extends BaseService implements IAuthService
+class AuthService implements AuthServiceInterface
 {
     public function register(array $data): array
     {
@@ -137,9 +137,7 @@ class AuthService extends BaseService implements IAuthService
     public function refreshToken(string $refreshToken): array
     {
         try {
-            $oldTokenString = $data['refresh_token'] ?? null;
-
-            $storedToken = RefreshToken::where('token', $oldTokenString)->first();
+            $storedToken = RefreshToken::where('token', $refreshToken)->first();
 
             if (!$storedToken || $storedToken->expires_at->isPast()) {
                 if ($storedToken) $storedToken->delete();
@@ -151,18 +149,19 @@ class AuthService extends BaseService implements IAuthService
             }
 
             $absoluteExpiration = $storedToken->expires_at;
-            $user = $storedToken->user;
+            $userId = $storedToken->user_id;
+            $user = User::query()->find($userId);
 
+            $newAccessToken = auth('api')->login($user);
             $storedToken->delete();
 
             $newRefreshTokenString = Str::random(64);
             RefreshToken::create([
-                'user_id' => $user->id,
+                'user_id' => $userId,
                 'token' => $newRefreshTokenString,
                 'expires_at' => $absoluteExpiration,
             ]);
 
-            $newAccessToken = Auth::login($user);
 
             return $this->respondWithToken($newAccessToken ?? '', $newRefreshTokenString);
         } catch (Exception $exception) {
@@ -176,7 +175,23 @@ class AuthService extends BaseService implements IAuthService
 
     public function me(): array
     {
-        return Auth::user()->toArray() ?? [];
+        $user = Auth::user();
+
+        if (!$user) {
+            return [];
+        }
+
+        $user->load(['employee']);
+
+        $permissions = ($user->username === 'admin')
+            ? Permission::get()
+            : $user->permissions;
+
+        return [
+            'user' => $user->only(['id', 'username', 'email', 'isactive', 'locale']),
+            'employee' => $user->employee,
+            'permissions' => $permissions,
+        ];
     }
 
     public function changeUserPass(int $userId, array $password): array

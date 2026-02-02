@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Common\Constants\HttpStatus;
-use App\Http\Interfaces\IAuthService;
+use App\Http\Interfaces\AuthServiceInterface;
 use App\Http\Requests\DoLoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\JsonResponse;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct(protected IAuthService $authService)
+    public function __construct(protected AuthServiceInterface $authService)
     {
     }
 
@@ -52,7 +52,7 @@ class AuthController extends Controller
 
     public function refreshToken(Request $request): JsonResponse
     {
-        $refreshToken = $request->only('refresh_token') ?? '';
+        $refreshToken = $request->input('refresh_token') ?? '';
         $result = $this->authService->refreshToken($refreshToken);
         return $this->DataResponse(
             $result['success'],
