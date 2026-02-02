@@ -7,6 +7,7 @@ use App\Http\Interfaces\EmployeeServiceInterface;
 use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
 {
@@ -45,5 +46,13 @@ class EmployeeController extends Controller
         }
 
         return $this->DataResponse(false, 'Xóa nhân viên thất bại', HttpStatus::BAD_REQUEST, null);
+    }
+
+    public function getUserOptions(Request $request): JsonResponse
+    {
+        $userId = $request->query('userId');
+        $result = $this->employeeService->getUserOptions($userId);
+
+        return $this->DataResponse(true, 'success', HttpStatus::OK, $result);
     }
 }

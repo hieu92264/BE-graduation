@@ -16,5 +16,6 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         Route::post('/create', 'create')->name('employees.create');
         Route::patch('/update/{id}', 'update')->name('employees.update');
         Route::delete('/delete/{id}', 'delete')->name('employees.delete');
+        Route::get('/user-options', 'getUserOptions')->name('employees.user-options');
     });
 });
