@@ -9,7 +9,7 @@ class RefreshToken extends BaseModel
     use MassPrunable;
 
     protected $fillable = [
-        'isactive',
+        'isactive', // nên là is_active
         'user_id',
         'expires_at',
         'token'
