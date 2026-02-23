@@ -8,7 +8,11 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-
+/// Lỗi sai nghiêm trọng, nên dùng thực tiếp Eloquent, bản thân Eloquent nó cũng đã chính là 1 Respository rồi, e ko nên tạo ra lớp abstraction làm gì
+/// khiến ứng dụng phức tạp ra, nếu cần xử lý các sự kiện liên quan có thể bắn event để các handler nó sẽ xử lý nó
+/// càng abstraction, càng gây phức tạp, thiếu hiệu quả , chỉ dùng abstraction khi thực sự cần thiết
+/// nên đọc và tìm hiểu nguyên lý Composition Over Inheritance
+/// 
 abstract class BaseService
 {
     /**
