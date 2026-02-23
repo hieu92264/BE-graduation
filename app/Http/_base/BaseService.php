@@ -98,6 +98,7 @@ abstract class BaseService
      */
     public function softDelete(int $id): bool
     {
+        // hàm này có nghĩ nghĩa gì đâu @@@, nếu model bật sẵn soft delete thì nó đã softDelete luôn r, chỉ cần delete và forceDelete
         return $this->delete($id);
     }
 
