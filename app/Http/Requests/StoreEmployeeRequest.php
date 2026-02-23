@@ -3,8 +3,11 @@
 namespace App\Http\Requests;
 
 use App\Common\Enums\WorkStatus;
+use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rules\Exists;
 
 class StoreEmployeeRequest extends FormRequest
 {
@@ -19,20 +22,21 @@ class StoreEmployeeRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array|string>
      */
     public function rules(): array
     {
+        // Tự google search vì sao mảng nó validation nó tốt hơn là pipe string ,mà có khi nhìn ngay cũng thấy
         return [
-            'user_id' => 'nullable|exists:users,id',
-            'full_name' => 'required|string|max:255',
+            'user_id' => ['nullable', new Exists(User::class, 'id')],
+            'full_name' => ['required', 'string', 'max:255'],
             'status' => ['required', new Enum(WorkStatus::class)],
-            'join_date' => 'nullable|date|string',
-            'email' => 'email|nullable',
-            'dob' => 'nullable|date|string',
-            'phone' => 'nullable|string',
-            'terminate_date' => 'nullable|date|string',
-            'remark' => 'nullable|string',
+            'join_date' => ['nullable', 'date'],
+            'email' => ['nullable', 'email'],
+            'dob' => ['nullable', 'date'],
+            'phone' => ['nullable', 'string'],
+            'terminate_date' => ['nullable', 'date'],
+            'remark' => ['nullable', 'string'],
         ];
     }
 }
