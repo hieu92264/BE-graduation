@@ -1,6 +1,5 @@
 <?php
 
-use App\Common\Constants\Environment;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Auth\AuthenticationException;
@@ -12,11 +11,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-//$routesPath = __DIR__ . '/../routes';
-//$apiRoutes = array_filter(
-//    glob($routesPath . '/*.php'),
-//    fn($file) => basename($file) !== 'web.php'
-//);
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -62,7 +56,7 @@ return Application::configure(basePath: dirname(__DIR__))
                     'timestamp' => now()->toISOString(),
                 ];
 
-                if (config('app.env') == Environment::LOCAL) {
+                if (app()->isLocal()) {
                     $payload['stack'] = "Exception: " . get_class($e) . " in " . $e->getFile() . ":" . $e->getLine();
                 }
 
