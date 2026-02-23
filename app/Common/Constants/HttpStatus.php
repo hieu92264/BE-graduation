@@ -6,6 +6,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class HttpStatus
 {
+    // thay vì tạo thêm class mới sao ko dùng luôn  Response::HTTP_OK
     public const OK = Response::HTTP_OK; //200
     public const CREATED = Response::HTTP_CREATED; // 201
 
