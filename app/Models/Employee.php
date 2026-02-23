@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+// có property docs khi gõ sẽ chuẩn là có type hint, ví dụ $employee->full_name. thử tự gõ đi
 /**
  * @property int $id
  * @property bool $isactive
