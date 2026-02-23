@@ -16,17 +16,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string $full_name
  * @property string|null $phone
  * @property string|null $email
- * @property \Illuminate\Support\Carbon|null $dob
+ * @property \Carbon\CarbonImmutable|null $dob
  * @property string|null $avatar_url
  * @property WorkStatus $status
- * @property \Illuminate\Support\Carbon|null $join_date
- * @property \Illuminate\Support\Carbon|null $terminate_date
+ * @property \Carbon\CarbonImmutable|null $join_date
+ * @property \Carbon\CarbonImmutable|null $terminate_date
  * @property string|null $remark
  * @property string|null $user_name_created
  * @property string|null $user_name_updated
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
+ * @property \Carbon\CarbonImmutable|null $deleted_at
  * @property-read \App\Models\User|null $user
  */
 class Employee extends Model
