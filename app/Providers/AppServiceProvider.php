@@ -8,6 +8,8 @@ use App\Http\Interfaces\PermissionServiceInterface;
 use App\Http\Services\AuthService;
 use App\Http\Services\EmployeeService;
 use App\Http\Services\PermissionService;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,5 +43,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Date::use(CarbonImmutable::class); // luôn trả về instance của CarbonImmutable
     }
 }
