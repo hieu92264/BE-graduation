@@ -7,6 +7,52 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $isactive
+ * @property int|null $user_id
+ * @property string $employee_code
+ * @property string $full_name
+ * @property string|null $phone
+ * @property string|null $email
+ * @property \Illuminate\Support\Carbon|null $dob
+ * @property string|null $avatar_url
+ * @property WorkStatus $status
+ * @property \Illuminate\Support\Carbon|null $join_date
+ * @property \Illuminate\Support\Carbon|null $terminate_date
+ * @property string|null $remark
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $user_name_created
+ * @property string|null $user_name_updated
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereAvatarUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereDob($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereEmployeeCode($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereFullName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereIsactive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereJoinDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee wherePhone($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereRemark($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereTerminateDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereUserId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereUserNameCreated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee whereUserNameUpdated($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Employee extends Model
 {
     use SoftDeletes;

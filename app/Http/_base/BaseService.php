@@ -93,15 +93,6 @@ abstract class BaseService
     }
 
     /**
-     * @param int $id
-     * @return bool
-     */
-    public function softDelete(int $id): bool
-    {
-        return $this->delete($id);
-    }
-
-    /**
      * @param int $perPage Số bản ghi trên mỗi trang
      * @param int $page Trang cụ thể muốn lấy
      * @param array $filters Mảng lọc dạng ['column' => 'value']
