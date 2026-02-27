@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Common\Enums\WorkStatus;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -53,7 +52,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Employee withoutTrashed()
  * @mixin \Eloquent
  */
-class Employee extends Model
+class Employee extends BaseModel
 {
     use SoftDeletes;
 

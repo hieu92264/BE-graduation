@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Common\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking newModelQuery()
@@ -12,5 +15,45 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Booking extends Model
 {
-    //
+    use SoftDeletes;
+
+    protected $fillable = [
+        'room_id',
+        'tenant_user_id',
+        'landlord_user_id',
+        'start_date',
+        'end_date',
+        'agreed_price',
+        'currency',
+        'commission_percent',
+        'commission_amount',
+        'status',
+        'note'
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'start_date' => 'date',
+            'end_date' => 'date',
+            'agreed_price' => 'decimal:2',
+            'commission_percent' => 'decimal:2',
+            'status' => BookingStatus::class
+        ];
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tenant_user_id');
+    }
+
+    public function landlord(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'landlord_user_id');
+    }
 }

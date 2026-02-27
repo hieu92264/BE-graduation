@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -41,6 +43,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Permission extends BaseModel
 {
     use SoftDeletes;
+
     protected $fillable = [
         'isactive',
         'code',
@@ -59,5 +62,15 @@ class Permission extends BaseModel
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'permission_user')->withTimestamps();
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent_id');
     }
 }

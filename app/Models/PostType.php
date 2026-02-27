@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PostType newModelQuery()
@@ -10,7 +10,31 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PostType query()
  * @mixin \Eloquent
  */
-class PostType extends Model
+class PostType extends BaseModel
 {
-    //
+    protected $fillable = [
+        'isactive',
+        'code',
+        'name',
+        'priority',
+        'default_days',
+        'price',
+        'remark',
+        'user_name_created',
+        'user_name_updated',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'priority' => 'integer',
+            'default_days' => 'integer',
+            'price' => 'integer',
+        ];
+    }
+
+    public function rooms(): HasMany
+    {
+        return $this->hasMany(Room::class, 'post_type_id', 'id');
+    }
 }

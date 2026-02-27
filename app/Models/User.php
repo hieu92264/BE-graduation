@@ -78,6 +78,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password',
         'last_login_at',
         'last_login_ip',
+        'locale',
+        'remark',
         'user_name_created',
         'user_name_updated',
     ];
@@ -148,5 +150,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new VerifyUserAccount());
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfiles::class, 'user_id');
     }
 }
