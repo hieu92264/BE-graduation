@@ -133,4 +133,14 @@ return [
      */
     'api_prefix' => env('APP_API_PREFIX', 'api'),
 
+    /*
+     * |--------------------------------------------------------------------------
+     * | Frontend URL
+     * |--------------------------------------------------------------------------
+     * | This value is the URL of the frontend application that will consume the API.
+     * | You can change it as needed.
+     * |
+     */
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:5173'),
+
 ];

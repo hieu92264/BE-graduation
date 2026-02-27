@@ -9,6 +9,7 @@ use App\Models\RefreshToken;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AuthService implements AuthServiceInterface
@@ -16,6 +17,7 @@ class AuthService implements AuthServiceInterface
     public function register(array $data): array
     {
         try {
+            DB::beginTransaction();
             $existingUser = User::where('username', $data['username'])->first();
 
             if ($existingUser) {
@@ -32,6 +34,10 @@ class AuthService implements AuthServiceInterface
                 'password' => $data['password'],
             ]);
 
+            $user->sendEmailVerificationNotification();
+
+            DB::commit();
+
             return [
                 'success' => true,
                 'message' => 'User registered successfully',
@@ -39,6 +45,7 @@ class AuthService implements AuthServiceInterface
                 'data' => $user->toArray(),
             ];
         } catch (Exception $e) {
+            DB::rollBack();
             return [
                 'success' => false,
                 'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
@@ -67,6 +74,15 @@ class AuthService implements AuthServiceInterface
             $user = User::query()
                 ->where('username', $credentials['username'])
                 ->first();
+
+            if (!$user || !$user->hasVerifiedEmail()) {
+                Auth::guard('api')->logout();
+                return [
+                    'success' => false,
+                    'message' => 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận.',
+                    'statusCode' => HttpStatus::FORBIDDEN,
+                ];
+            }
 
             $refreshToken = Str::random(64);
 

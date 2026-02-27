@@ -13,6 +13,8 @@ Route::prefix('auth')->controller(AuthController::class)
             Route::get('me', 'me')->name('auth.me');
             Route::post('logout', 'logout')->name('auth.logout');
         });
+        Route::post('forgot-password', 'forgotPassword')->name('auth.forgot-password');
+        Route::post('reset-password', 'resetPassword')->name('auth.reset-password');
     });
 
 Route::prefix('permissions')->middleware(['jwt.auth', 'check.permission'])->controller(PermissionController::class)

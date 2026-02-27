@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Notifications\VerifyUserAccount;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -58,7 +60,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -119,7 +121,7 @@ class User extends Authenticatable implements JWTSubject
         if ($this->username === 'admin') {
             return true;
         }
-        
+
         return $this->permissions->contains('code', $permissionCode);
     }
 
@@ -141,5 +143,10 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new VerifyUserAccount());
     }
 }
