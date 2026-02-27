@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserProfiles newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserProfiles newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserProfiles query()
+ * @property UserType $user_type
+ * @property-read \App\Models\User|null $user
  * @mixin \Eloquent
  */
 class UserProfiles extends BaseModel

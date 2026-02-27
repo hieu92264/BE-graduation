@@ -58,6 +58,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUsername($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User withoutTrashed()
+ * @property-read \App\Models\UserProfiles|null $profile
  * @mixin \Eloquent
  */
 class User extends Authenticatable implements JWTSubject, MustVerifyEmail

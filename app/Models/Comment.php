@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment query()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CommentReply> $replies
+ * @property-read int|null $replies_count
+ * @property-read \App\Models\Room|null $room
+ * @property-read \App\Models\User|null $user
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Comment withoutTrashed()
  * @mixin \Eloquent
  */
 class Comment extends Model

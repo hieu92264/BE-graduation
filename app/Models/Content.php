@@ -9,6 +9,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Content newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Content newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Content query()
+ * @property-read \App\Models\User|null $author
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Content onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Content withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Content withoutTrashed()
  * @mixin \Eloquent
  */
 class Content extends BaseModel

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPhoto newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPhoto newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RoomPhoto query()
+ * @property-read \App\Models\Room|null $room
  * @mixin \Eloquent
  */
 class RoomPhoto extends Model

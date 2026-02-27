@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PostType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PostType newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PostType query()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Room> $rooms
+ * @property-read int|null $rooms_count
  * @mixin \Eloquent
  */
 class PostType extends BaseModel

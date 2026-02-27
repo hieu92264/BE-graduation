@@ -2,6 +2,12 @@
 
 namespace App\Models;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slider newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slider newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slider query()
+ * @mixin \Eloquent
+ */
 class Slider extends BaseModel
 {
     protected $fillable = [

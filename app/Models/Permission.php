@@ -38,6 +38,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission whereUserNameUpdated($value)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission withTrashed(bool $withTrashed = true)
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission withoutTrashed()
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Permission> $children
+ * @property-read int|null $children_count
+ * @property-read Permission|null $parent
  * @mixin \Eloquent
  */
 class Permission extends BaseModel

@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking query()
+ * @property BookingStatus $status
+ * @property-read \App\Models\User|null $landlord
+ * @property-read \App\Models\Room|null $room
+ * @property-read \App\Models\User|null $tenant
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking withTrashed(bool $withTrashed = true)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking withoutTrashed()
  * @mixin \Eloquent
  */
 class Booking extends Model
