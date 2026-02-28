@@ -13,12 +13,12 @@ class ActiveScope implements Scope
      *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
-     * @param  \Illuminate\Database\Eloquent\Builder<TModel>  $builder
-     * @param  TModel  $model
+     * @param \Illuminate\Database\Eloquent\Builder<TModel> $builder
+     * @param TModel $model
      * @return void
      */
     public function apply(Builder $builder, Model $model)
     {
-        $builder->where('isactive', 'Y');
+        $builder->where($model->qualifyColumn('isactive'), 'Y');
     }
 }
