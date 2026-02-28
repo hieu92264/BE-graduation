@@ -9,6 +9,6 @@ enum UserType: string
 
     public static function values(): array
     {
-        return array_map(fn(self $c) => $c->value, self::values());
+        return array_map(fn(self $c) => $c->value, self::cases());
     }
 }
