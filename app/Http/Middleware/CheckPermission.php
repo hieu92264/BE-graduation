@@ -32,7 +32,9 @@ class CheckPermission
 
             $code = str_replace('/', '.', $path);
 
-            $permissionCode = strtolower($code);
+            $routeName = $request->route()?->getName();
+
+            $permissionCode = strtolower($routeName ?? '');
 
             if (!$user || !$user->hasPermission($permissionCode)) {
                 return $this->failedResponse(

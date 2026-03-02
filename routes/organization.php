@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
@@ -9,6 +11,23 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         Route::post('/create', 'create')->name('permissions.create');
         Route::patch('/update/{id}', 'update')->name('permissions.update');
         Route::delete('/delete/{id}', 'delete')->name('permissions.delete');
+    });
+
+    Route::prefix('users')->middleware(['check.permission'])->controller(UserController::class)->group(function () {
+        Route::get('/', 'index')->name('users');
+        Route::post('/create', 'store')->name('users.create');
+        Route::patch('/update/{id}', 'update')->name('users.update');
+        Route::delete('/delete/{id}', 'destroy')->name('users.delete');
+
+        Route::get('/{id}/permissions', 'getPermissions')->name('users.permissions');
+        Route::put('/{id}/permissions', 'syncPermissions')->name('users.permissions.update');
+    });
+
+    Route::prefix('user-profiles')->middleware(['check.permission'])->controller(UserProfileController::class)->group(function () {
+        Route::get('/', 'index')->name('user-profiles');
+        Route::post('/create', 'store')->name('user-profiles.create');
+        Route::patch('/update/{id}', 'update')->name('user-profiles.update');
+        Route::delete('/delete/{id}', 'destroy')->name('user-profiles.delete');
     });
 
     Route::prefix('employees')->middleware(['check.permission'])->controller(\App\Http\Controllers\EmployeeController::class)->group(function () {
