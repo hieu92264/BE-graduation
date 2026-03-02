@@ -22,5 +22,7 @@ class Contact extends Model
         'subject',
         'message',
         'status',
+        'room_id',
+        'owner_user_id',
     ];
 }

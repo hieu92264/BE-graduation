@@ -74,4 +74,29 @@ class RoomController extends Controller
 
         return $this->successResponse($rooms->toArray());
     }
+
+    public function roomDetail(string $id): JsonResponse
+    {
+        $room = Room::query()
+            ->with([
+                'category:id,code,name,slug,sort_order,remark,isactive,created_at,updated_at',
+                'postType:id,code,name,priority,default_days,price,remark,isactive,created_at,updated_at',
+                'city:id,code,name,sort_order,isactive,created_at,updated_at',
+                'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
+                'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
+                'photos' => function ($q) {
+                    $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
+                },
+                'owner:id,username,email',
+                'owner.profile:id,user_id,full_name,phone_number,avatar_url,address,zalo,facebook,user_type,remark,isactive,created_at,updated_at',
+            ])
+            ->whereKey((int)$id)
+            ->firstOrFail();
+        return $this->successResponse($room->toArray());
+    }
+
+    public function createContact()
+    {
+
+    }
 }

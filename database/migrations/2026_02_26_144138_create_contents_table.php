@@ -46,6 +46,8 @@ return new class extends Migration {
 
         Schema::create('contacts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('room_id')->nullable()->index();
+            $table->unsignedBigInteger('owner_user_id')->nullable()->index();
             $table->string('name', 150)->nullable();
             $table->string('email', 150)->nullable()->index();
             $table->string('phone', 30)->nullable()->index();

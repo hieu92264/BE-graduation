@@ -8,3 +8,6 @@ Route::get('locations/districts', [\App\Http\Controllers\LocationController::cla
 Route::get('locations/wards', [\App\Http\Controllers\LocationController::class, 'ward']);
 Route::apiResource('sliders', \App\Http\Controllers\SliderController::class);
 Route::apiResource('rooms', \App\Http\Controllers\RoomController::class);
+Route::get('rooms/detail/{id}', [\App\Http\Controllers\RoomController::class, 'roomDetail']);
+
+Route::post('contact/{id}', [\App\Http\Controllers\ContactController::class, 'store']);
