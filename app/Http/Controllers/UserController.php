@@ -35,8 +35,8 @@ class UserController extends Controller
     {
         $data = $request->validate([
             'isactive' => ['nullable', 'in:Y,N'],
-            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'email' => ['nullable', 'email', 'max:255', 'unique:users,email'],
+            'username' => ['required', 'string', 'max:255'],
+            'email' => ['nullable', 'email', 'max:255'],
             'password' => ['required', 'string', 'min:6'],
             'locale' => ['nullable', 'string', 'max:10'],
             'remark' => ['nullable', 'string'],
@@ -52,7 +52,105 @@ class UserController extends Controller
             'profile_remark' => ['nullable', 'string'],
         ]);
 
-        $user = DB::transaction(function () use ($data) {
+        $existing = null;
+
+        if (!empty($data['email'])) {
+            $existing = User::withTrashed()->where('email', $data['email'])->first();
+        }
+
+        if (!$existing) {
+            $existing = User::withTrashed()->where('username', $data['username'])->first();
+        }
+
+        $needSendVerify = false;
+
+        if ($existing && $existing->trashed()) {
+            $activeEmailConflict = !empty($data['email'])
+                && User::whereNull('deleted_at')
+                    ->where('email', $data['email'])
+                    ->where('id', '!=', $existing->id)
+                    ->exists();
+
+            $activeUsernameConflict =
+                User::whereNull('deleted_at')
+                    ->where('username', $data['username'])
+                    ->where('id', '!=', $existing->id)
+                    ->exists();
+
+            if ($activeEmailConflict) {
+                return $this->failedResponse('Email already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+            }
+
+            if ($activeUsernameConflict) {
+                return $this->failedResponse('Username already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+            }
+
+            $user = DB::transaction(function () use ($existing, $data, &$needSendVerify) {
+                $existing->restore();
+
+                $oldEmail = $existing->email;
+                $newEmail = $data['email'] ?? null;
+
+                $emailChanged = ($oldEmail !== $newEmail);
+
+                $existing->fill([
+                    'isactive' => $data['isactive'] ?? 'Y',
+                    'username' => $data['username'],
+                    'email' => $newEmail,
+                    'password' => $data['password'],
+                    'locale' => $data['locale'] ?? null,
+                    'remark' => $data['remark'] ?? null,
+                ]);
+
+                $existing->email_verified_at = null;
+                $needSendVerify = !empty($newEmail);
+
+                $existing->save();
+
+                $existing->profile()->updateOrCreate(
+                    ['user_id' => $existing->id],
+                    [
+                        'isactive' => $data['isactive'] ?? 'Y',
+                        'full_name' => $data['full_name'] ?? null,
+                        'phone_number' => $data['phone_number'] ?? null,
+                        'avatar_url' => $data['avatar_url'] ?? null,
+                        'address' => $data['address'] ?? null,
+                        'zalo' => $data['zalo'] ?? null,
+                        'facebook' => $data['facebook'] ?? null,
+                        'user_type' => $data['user_type'],
+                        'remark' => $data['profile_remark'] ?? null,
+                    ]
+                );
+
+                return $existing->load('profile');
+            });
+
+            if ($needSendVerify) {
+                $user->sendEmailVerificationNotification();
+            }
+
+            return $this->successResponse(
+                $user->toArray(),
+                'User restored & updated successfully. Verification email sent.',
+                HttpStatus::OK
+            );
+        }
+
+        $activeEmailExists = !empty($data['email'])
+            && User::whereNull('deleted_at')->where('email', $data['email'])->exists();
+
+        $activeUsernameExists =
+            User::whereNull('deleted_at')->where('username', $data['username'])->exists();
+
+        if ($activeEmailExists) {
+            return $this->failedResponse('Email already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+        }
+
+        if ($activeUsernameExists) {
+            return $this->failedResponse('Username already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+        }
+
+        $user = DB::transaction(function () use ($data, &$needSendVerify) {
             $user = User::create([
                 'isactive' => $data['isactive'] ?? 'Y',
                 'username' => $data['username'],
@@ -74,10 +172,20 @@ class UserController extends Controller
                 'remark' => $data['profile_remark'] ?? null,
             ]);
 
+            $needSendVerify = !empty($data['email']);
+
             return $user->load('profile');
         });
 
-        return $this->successResponse($user->toArray(), 'User created successfully', HttpStatus::CREATED);
+        if ($needSendVerify) {
+            $user->sendEmailVerificationNotification();
+        }
+
+        return $this->successResponse(
+            $user->toArray(),
+            'User created successfully. Verification email sent.',
+            HttpStatus::CREATED
+        );
     }
 
     /**
@@ -97,8 +205,18 @@ class UserController extends Controller
 
         $data = $request->validate([
             'isactive' => ['nullable', 'in:Y,N'],
-            'username' => ['required', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
-            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
+            'username' => [
+                'required', 'string', 'max:255',
+                Rule::unique('users', 'username')
+                    ->ignore($user->id)
+                    ->whereNull('deleted_at'),
+            ],
+            'email' => [
+                'nullable', 'email', 'max:255',
+                Rule::unique('users', 'email')
+                    ->ignore($user->id)
+                    ->whereNull('deleted_at'),
+            ],
             'password' => ['nullable', 'string', 'min:6'], // update thì optional
             'locale' => ['nullable', 'string', 'max:10'],
             'remark' => ['nullable', 'string'],
