@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdatePermissionRequest extends FormRequest
 {
@@ -22,11 +23,31 @@ class UpdatePermissionRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id');
         return [
-            'code' => 'string|max:255|min:1|unique:permissions,code',
-            'name' => 'string|max:255|min:1',
-            'parent_id' => 'nullable|integer|exists:permissions,id',
-            'url' => 'nullable|string|max:255',
+            'code' => [
+                'required',
+                'string',
+                'min:1',
+                'max:255',
+                Rule::unique('permissions', 'code')->ignore($id),
+            ],
+            'name' => [
+                'required',
+                'string',
+                'min:1',
+                'max:255',
+            ],
+            'parent_id' => [
+                'nullable',
+                'integer',
+                'exists:permissions,id',
+            ],
+            'url' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ];
     }
 }

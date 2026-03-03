@@ -63,6 +63,7 @@ class AuthService implements AuthServiceInterface
             ];
 
             $token = Auth::guard('api')->attempt($credentials);
+
             if (!$token) {
                 return [
                     'success' => false,

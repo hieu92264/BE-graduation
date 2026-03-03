@@ -41,4 +41,10 @@ class PermissionController extends Controller
         $result = $this->service->delete($id);
         return $this->DataResponse(true, 'success', HttpStatus::OK, []);
     }
+
+    public function getPermissionOptions(): JsonResponse
+    {
+        $data = $this->service->getPermissionOptions();
+        return $this->successResponse($data, 'Success', HttpStatus::OK);
+    }
 }

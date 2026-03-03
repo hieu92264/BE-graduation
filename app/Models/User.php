@@ -121,11 +121,17 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
     public function hasPermission(string $permissionCode): bool
     {
-        if ($this->username === 'admin') {
+        if (strtolower($this->username ?? '') === 'admin') {
             return true;
         }
 
-        return $this->permissions->contains('code', $permissionCode);
+        if ($permissionCode === '') return true;
+
+        if ($this->relationLoaded('permissions')) {
+            return $this->permissions->contains('code', $permissionCode);
+        }
+
+        return $this->permissions()->where('code', $permissionCode)->exists();
     }
 
     /**
