@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PostTypeController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('rooms/featured', [\App\Http\Controllers\RoomController::class, 'featured']);
@@ -11,3 +12,6 @@ Route::apiResource('rooms', \App\Http\Controllers\RoomController::class);
 Route::get('rooms/detail/{id}', [\App\Http\Controllers\RoomController::class, 'roomDetail']);
 
 Route::post('contact/{id}', [\App\Http\Controllers\ContactController::class, 'store']);
+
+Route::get('post-types', [PostTypeController::class, 'index']);
+Route::get('post-types/options', [PostTypeController::class, 'options']);
