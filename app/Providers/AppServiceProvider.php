@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Http\Interfaces\AuthServiceInterface;
+use App\Http\Interfaces\CategoryServiceInterface;
 use App\Http\Interfaces\EmployeeServiceInterface;
 use App\Http\Interfaces\PermissionServiceInterface;
 use App\Http\Interfaces\UserProfileServiceInterface;
 use App\Http\Interfaces\UserServiceInterface;
 use App\Http\Services\AuthService;
+use App\Http\Services\CategoryService;
 use App\Http\Services\EmployeeService;
 use App\Http\Services\PermissionService;
 use App\Http\Services\UserProfileService;
@@ -37,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(PermissionServiceInterface::class, PermissionService::class);
         $this->app->singleton(UserProfileServiceInterface::class, UserProfileService::class);
         $this->app->singleton(UserServiceInterface::class, UserService::class);
+        $this->app->singleton(CategoryServiceInterface::class, CategoryService::class);
     }
 
     protected function registerRepositories(): void

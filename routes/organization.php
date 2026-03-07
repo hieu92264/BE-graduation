@@ -42,4 +42,13 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         Route::delete('/delete/{id}', 'delete')->name('employees.delete');
         Route::get('/user-options', 'getUserOptions')->name('employees.user-options');
     });
+
+    Route::prefix('categories')
+        ->middleware(['check.permission:org.categories'])
+        ->controller(\App\Http\Controllers\CategoryController::class)->group(function () {
+            Route::get('/', 'getAll')->name('categories');
+            Route::post('/create', 'create')->name('categories.create');
+            Route::patch('/update/{id}', 'update')->name('categories.update');
+            Route::delete('/delete/{id}', 'delete')->name('categories.delete');
+        });
 });
