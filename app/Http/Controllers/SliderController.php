@@ -2,59 +2,151 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Constants\HttpStatus;
 use App\Common\Traits\ApiResponseTrait;
+use App\Http\Requests\StoreSliderRequest;
+use App\Http\Requests\UpdateSliderRequest;
 use App\Models\Slider;
-use Illuminate\Http\Request;
+use Buglinjo\LaravelWebp\Facades\Webp;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SliderController extends Controller
 {
     use ApiResponseTrait;
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function publicIndex(): JsonResponse
     {
-        $data = Slider::all()->toArray();
-        return $this->successResponse($data);
+        $data = Slider::query()
+            ->where('isactive', 1)
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($slider) => $this->transformSlider($slider))
+            ->toArray();
+
+        return $this->successResponse($data, 'Success', HttpStatus::OK);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function index(): JsonResponse
     {
-        $data = $request->all();
-        $slider = Slider::create($data);
-        return $this->successResponse($slider);
+        $data = Slider::query()
+            ->orderBy('sort_order')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn ($slider) => $this->transformSlider($slider))
+            ->toArray();
+
+        return $this->successResponse($data, 'Success', HttpStatus::OK);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function store(StoreSliderRequest $request): JsonResponse
     {
-        //
+        $data = $request->validated();
+
+        $relativeImagePath = $this->saveImageToStorage($request->file('image'));
+
+        $slider = Slider::create([
+            'title' => $data['title'] ?? null,
+            'image_url' => $relativeImagePath,
+            'link_url' => $data['link_url'] ?? null,
+            'sort_order' => $data['sort_order'] ?? 0,
+            'isactive' => $data['isactive'] ?? 'Y',
+            'remark' => $data['remark'] ?? null,
+        ]);
+
+        return $this->successResponse(
+            $this->transformSlider($slider->fresh()),
+            'Slider created successfully',
+            HttpStatus::CREATED
+        );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(UpdateSliderRequest $request, int $id): JsonResponse
     {
-        $data = $request->all();
-        $slider = Slider::findOrFail($id);
-        $slider->update($data);
-        return $this->successResponse($slider);
+        $slider = Slider::query()->findOrFail($id);
+        $data = $request->validated();
+
+        $imagePath = $slider->image_url;
+
+        if ($request->hasFile('image')) {
+            $this->deleteImageFromStorage($slider->image_url);
+            $imagePath = $this->saveImageToStorage($request->file('image'));
+        }
+
+        $slider->update([
+            'title' => $data['title'] ?? null,
+            'image_url' => $imagePath,
+            'link_url' => $data['link_url'] ?? null,
+            'sort_order' => $data['sort_order'] ?? 0,
+            'isactive' => $data['isactive'] ?? 'Y',
+            'remark' => $data['remark'] ?? null,
+        ]);
+
+        return $this->successResponse(
+            $this->transformSlider($slider->fresh()),
+            'Slider updated successfully',
+            HttpStatus::OK
+        );
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(int $id): JsonResponse
     {
-        $slider = Slider::findOrFail($id);
+        $slider = Slider::query()->findOrFail($id);
+
+        $this->deleteImageFromStorage($slider->image_url);
         $slider->delete();
-        return $this->successResponse([], 'Slider deleted successfully');
+
+        return $this->successResponse([], 'Slider deleted successfully', HttpStatus::OK);
+    }
+
+    private function saveImageToStorage(?UploadedFile $file): string
+    {
+        if (!$file) {
+            throw new \RuntimeException('Image file is required.');
+        }
+
+        $fileNameWithoutExtension = now()->format('YmdHis') . '_' . Str::random(12);
+        $finalRelativePath = 'sliders/' . $fileNameWithoutExtension . '.webp';
+        $finalAbsolutePath = storage_path('app/public/' . $finalRelativePath);
+
+        $originalExtension = strtolower($file->getClientOriginalExtension());
+
+        if ($originalExtension === 'webp') {
+            Storage::disk('public')->putFileAs('sliders', $file, $fileNameWithoutExtension . '.webp');
+        } else {
+            if (!is_dir(dirname($finalAbsolutePath))) {
+                mkdir(dirname($finalAbsolutePath), 0777, true);
+            }
+
+            Webp::make($file)->save($finalAbsolutePath);
+        }
+
+        return $finalRelativePath;
+    }
+
+    private function deleteImageFromStorage(?string $relativePath): void
+    {
+        if (empty($relativePath)) {
+            return;
+        }
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        }
+    }
+
+    private function transformSlider(Slider $slider): array
+    {
+        $data = $slider->toArray();
+
+        $data['image_path'] = $slider->image_url;
+        $data['image_url'] = $slider->image_url
+            ? asset('storage/' . ltrim($slider->image_url, '/'))
+            : null;
+
+        return $data;
     }
 }

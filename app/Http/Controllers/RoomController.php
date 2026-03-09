@@ -11,78 +11,7 @@ class RoomController extends Controller
 {
     use ApiResponseTrait;
 
-    public function index(): JsonResponse
-    {
-        $data = Room::query()
-            ->with([
-                'category:id,code,name,slug,sort_order,remark,isactive,created_at,updated_at',
-                'postType:id,code,name,priority,default_days,price,remark,isactive,created_at,updated_at',
-                'city:id,code,name,sort_order,isactive,created_at,updated_at',
-                'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
-                'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
-                'photos' => function ($q) {
-                    $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
-                },
-            ])
-            ->latest('id')
-            ->get()
-            ->toArray();
-
-        return $this->successResponse($data);
-    }
-
-    public function store(Request $request): JsonResponse
-    {
-        $data = $request->all();
-        $room = Room::create($data);
-
-        return $this->successResponse($room->toArray());
-    }
-
-    public function update(Request $request, string $id): JsonResponse
-    {
-        $data = $request->all();
-        $room = Room::findOrFail($id);
-        $room->update($data);
-
-        return $this->successResponse($room->toArray());
-    }
-
-    public function destroy(string $id): JsonResponse
-    {
-        $room = Room::findOrFail($id);
-        $room->delete();
-
-        return $this->successResponse([], 'Room deleted successfully');
-    }
-
-    public function featured(): JsonResponse
-    {
-        $rooms = Room::query()
-            ->with([
-                'postType:id,code,name,priority,default_days,price,remark,isactive,created_at,updated_at',
-                'photos' => function ($q) {
-                    $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
-                },
-                'city:id,code,name,sort_order,isactive,created_at,updated_at',
-                'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
-                'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
-            ])
-            ->whereHas('postType', function ($query) {
-                $query->where('priority', '>', 0);
-            })
-            ->join('post_types', 'rooms.post_type_id', '=', 'post_types.id')
-            ->orderByDesc('post_types.priority')
-            ->orderByDesc('rooms.created_at')
-            ->select('rooms.*')
-            ->take(10)
-            ->get()
-            ->toArray();
-
-        return $this->successResponse($rooms);
-    }
-
-    public function search(Request $request): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         $query = Room::query()
             ->with([
@@ -142,19 +71,66 @@ class RoomController extends Controller
             $query->where('area', '<=', (float) $request->max_area);
         }
 
-        $query
-            ->leftJoin('post_types', 'rooms.post_type_id', '=', 'post_types.id')
-            ->orderByDesc('post_types.priority')
-            ->orderByDesc('rooms.created_at')
-            ->select('rooms.*');
+        $sort = (string) $request->get('sort', 'latest');
 
-        $perPage = (int) ($request->get('per_page', 12));
-        $rooms = $query->paginate($perPage);
+        switch ($sort) {
+            case 'price_asc':
+                $query->orderBy('price');
+                break;
+            case 'price_desc':
+                $query->orderByDesc('price');
+                break;
+            case 'area_asc':
+                $query->orderBy('area');
+                break;
+            case 'area_desc':
+                $query->orderByDesc('area');
+                break;
+            default:
+                $query
+                    ->leftJoin('post_types', 'rooms.post_type_id', '=', 'post_types.id')
+                    ->orderByDesc('post_types.priority')
+                    ->orderByDesc('rooms.created_at')
+                    ->select('rooms.*');
+                break;
+        }
+
+        $perPage = max(1, min((int) $request->get('per_page', 12), 50));
+        $rooms = $query->paginate($perPage)->through(function ($room) {
+            return $this->transformRoom($room);
+        });
 
         return $this->paginate($rooms, 'Search rooms successfully');
     }
 
-    public function roomDetail(string $id): JsonResponse
+    public function featured(): JsonResponse
+    {
+        $rooms = Room::query()
+            ->with([
+                'postType:id,code,name,priority,default_days,price,remark,isactive,created_at,updated_at',
+                'photos' => function ($q) {
+                    $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
+                },
+                'city:id,code,name,sort_order,isactive,created_at,updated_at',
+                'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
+                'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
+            ])
+            ->whereHas('postType', function ($query) {
+                $query->where('priority', '>', 0);
+            })
+            ->join('post_types', 'rooms.post_type_id', '=', 'post_types.id')
+            ->orderByDesc('post_types.priority')
+            ->orderByDesc('rooms.created_at')
+            ->select('rooms.*')
+            ->take(10)
+            ->get()
+            ->map(fn ($room) => $this->transformRoom($room))
+            ->toArray();
+
+        return $this->successResponse($rooms);
+    }
+
+    public function showPublic(string $slugOrId): JsonResponse
     {
         $room = Room::query()
             ->with([
@@ -169,13 +145,36 @@ class RoomController extends Controller
                 'owner:id,username,email',
                 'owner.profile:id,user_id,full_name,phone_number,avatar_url,address,zalo,facebook,user_type,remark,isactive,created_at,updated_at',
             ])
-            ->whereKey((int) $id)
+            ->where(function ($q) use ($slugOrId) {
+                if (is_numeric($slugOrId)) {
+                    $q->whereKey((int) $slugOrId);
+                }
+                $q->orWhere('slug', $slugOrId);
+            })
             ->firstOrFail();
 
-        return $this->successResponse($room->toArray());
+        return $this->successResponse($this->transformRoom($room));
     }
 
-    public function createContact()
+    private function transformRoom(Room $room): array
     {
+        $data = $room->toArray();
+
+        $data['post_type'] = $data['postType'] ?? null;
+
+        if (!empty($data['photos'])) {
+            $data['photos'] = collect($data['photos'])->map(function ($photo) {
+                if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
+                    $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
+                }
+                return $photo;
+            })->values()->toArray();
+        }
+
+        if (!empty($data['owner']['profile']['avatar_url']) && !str_starts_with($data['owner']['profile']['avatar_url'], 'http')) {
+            $data['owner']['profile']['avatar_url'] = asset('storage/' . ltrim($data['owner']['profile']['avatar_url'], '/'));
+        }
+
+        return $data;
     }
 }

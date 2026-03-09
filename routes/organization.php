@@ -51,4 +51,14 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::patch('/update/{id}', 'update')->name('categories.update');
             Route::delete('/delete/{id}', 'delete')->name('categories.delete');
         });
+
+    Route::prefix('sliders')
+        ->middleware(['check.permission:org.sliders'])
+        ->controller(\App\Http\Controllers\SliderController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('sliders');
+            Route::post('/create', 'store')->name('sliders.create');
+            Route::post('/update/{id}', 'update')->name('sliders.update');
+            Route::delete('/delete/{id}', 'destroy')->name('sliders.delete');
+        });
 });
