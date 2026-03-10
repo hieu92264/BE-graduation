@@ -61,4 +61,15 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::post('/update/{id}', 'update')->name('sliders.update');
             Route::delete('/delete/{id}', 'destroy')->name('sliders.delete');
         });
+
+    Route::prefix('post-types')
+        ->middleware(['check.permission:org.post-types'])
+        ->controller(\App\Http\Controllers\PostTypeController::class)
+        ->group(function () {
+            Route::get('/', 'index')->name('post-types');
+            Route::get('/options', 'options')->name('post-types.options');
+            Route::post('/create', 'store')->name('post-types.create');
+            Route::patch('/update/{id}', 'update')->name('post-types.update');
+            Route::delete('/delete/{id}', 'destroy')->name('post-types.delete');
+        });
 });
