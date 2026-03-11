@@ -72,4 +72,18 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::patch('/update/{id}', 'update')->name('post-types.update');
             Route::delete('/delete/{id}', 'destroy')->name('post-types.delete');
         });
+
+    Route::prefix('landlord')->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\LandlordDashboardController::class, 'index']);
+
+        Route::prefix('rooms')
+            ->controller(\App\Http\Controllers\LandlordRoomController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/create', 'store');
+                Route::patch('/update/{id}', 'update');
+                Route::delete('/delete/{id}', 'destroy');
+            });
+    });
 });

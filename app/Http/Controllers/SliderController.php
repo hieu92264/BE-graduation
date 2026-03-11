@@ -20,7 +20,6 @@ class SliderController extends Controller
     public function publicIndex(): JsonResponse
     {
         $data = Slider::query()
-            ->where('isactive', 1)
             ->orderBy('sort_order')
             ->orderByDesc('id')
             ->get()
