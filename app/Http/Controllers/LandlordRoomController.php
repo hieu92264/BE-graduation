@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Common\Constants\HttpStatus;
 use App\Common\Traits\ApiResponseTrait;
 use App\Models\Room;
-use App\Models\RoomPhoto;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -30,12 +29,15 @@ class LandlordRoomController extends Controller
                 'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
                 'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
                 'photos' => function ($q) {
-                    $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
+                    $q->orderByDesc('is_cover')
+                        ->orderBy('sort_order')
+                        ->orderBy('id');
                 },
             ]);
 
         if ($request->filled('keyword')) {
             $keyword = trim((string) $request->keyword);
+
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
                     ->orWhere('slug', 'like', "%{$keyword}%")
@@ -115,7 +117,9 @@ class LandlordRoomController extends Controller
             'district:id,city_id,code,name,sort_order,isactive,created_at,updated_at',
             'ward:id,district_id,code,name,sort_order,isactive,created_at,updated_at',
             'photos' => function ($q) {
-                $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
+                $q->orderByDesc('is_cover')
+                    ->orderBy('sort_order')
+                    ->orderBy('id');
             },
         ]);
 
@@ -135,24 +139,24 @@ class LandlordRoomController extends Controller
             $user = auth()->user();
             $slug = $this->makeUniqueSlug($validated['slug'] ?? $validated['title']);
 
-            $room = Room::withoutGlobalScopes()->create([
-                'isactive' => $validated['isactive'] ?? 'Y',
-                'owner_user_id' => $user->id,
-                'category_id' => $validated['category_id'] ?? null,
-                'post_type_id' => $validated['post_type_id'] ?? null,
-                'city_id' => $validated['city_id'] ?? null,
-                'district_id' => $validated['district_id'] ?? null,
-                'ward_id' => $validated['ward_id'] ?? null,
-                'title' => $validated['title'],
-                'slug' => $slug,
-                'address' => $validated['address'] ?? null,
-                'price' => $validated['price'] ?? 0,
-                'area' => $validated['area'] ?? null,
-                'description' => $validated['description'] ?? null,
-                'booking_status' => $validated['booking_status'] ?? 'pending',
-            ]);
-
-            $this->syncPhotos($room, $validated['photos'] ?? []);
+            $room = Room::query()
+                ->withoutGlobalScopes()
+                ->create([
+                    'isactive' => $validated['isactive'] ?? 'Y',
+                    'owner_user_id' => $user->id,
+                    'category_id' => $validated['category_id'] ?? null,
+                    'post_type_id' => $validated['post_type_id'] ?? null,
+                    'city_id' => $validated['city_id'] ?? null,
+                    'district_id' => $validated['district_id'] ?? null,
+                    'ward_id' => $validated['ward_id'] ?? null,
+                    'title' => $validated['title'],
+                    'slug' => $slug,
+                    'address' => $validated['address'] ?? null,
+                    'price' => $validated['price'] ?? 0,
+                    'area' => $validated['area'] ?? null,
+                    'description' => $validated['description'] ?? null,
+                    'booking_status' => $validated['booking_status'] ?? 'pending',
+                ]);
 
             DB::commit();
 
@@ -162,7 +166,11 @@ class LandlordRoomController extends Controller
                 'city',
                 'district',
                 'ward',
-                'photos' => fn ($q) => $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id'),
+                'photos' => function ($q) {
+                    $q->orderByDesc('is_cover')
+                        ->orderBy('sort_order')
+                        ->orderBy('id');
+                },
             ]);
 
             return $this->successResponse(
@@ -172,9 +180,14 @@ class LandlordRoomController extends Controller
             );
         } catch (\Throwable $e) {
             DB::rollBack();
-            return $this->failedResponse('Failed to create room', HttpStatus::BAD_REQUEST, [
-                'message' => $e->getMessage(),
-            ]);
+
+            return $this->failedResponse(
+                'Failed to create room',
+                HttpStatus::BAD_REQUEST,
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
         }
     }
 
@@ -187,6 +200,7 @@ class LandlordRoomController extends Controller
 
         try {
             $slug = $validated['slug'] ?? $room->slug;
+
             if ($slug !== $room->slug) {
                 $slug = $this->makeUniqueSlug($slug, $room->id);
             }
@@ -207,8 +221,6 @@ class LandlordRoomController extends Controller
                 'booking_status' => $validated['booking_status'] ?? $room->booking_status,
             ]);
 
-            $this->syncPhotos($room, $validated['photos'] ?? null);
-
             DB::commit();
 
             $room->load([
@@ -217,7 +229,11 @@ class LandlordRoomController extends Controller
                 'city',
                 'district',
                 'ward',
-                'photos' => fn ($q) => $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id'),
+                'photos' => function ($q) {
+                    $q->orderByDesc('is_cover')
+                        ->orderBy('sort_order')
+                        ->orderBy('id');
+                },
             ]);
 
             return $this->successResponse(
@@ -226,18 +242,40 @@ class LandlordRoomController extends Controller
             );
         } catch (\Throwable $e) {
             DB::rollBack();
-            return $this->failedResponse('Failed to update room', HttpStatus::BAD_REQUEST, [
-                'message' => $e->getMessage(),
-            ]);
+
+            return $this->failedResponse(
+                'Failed to update room',
+                HttpStatus::BAD_REQUEST,
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
         }
     }
 
     public function destroy(int $id): JsonResponse
     {
         $room = $this->findOwnedRoom($id);
-        $room->delete();
 
-        return $this->successResponse([], 'Room deleted successfully');
+        DB::beginTransaction();
+
+        try {
+            $room->delete();
+
+            DB::commit();
+
+            return $this->successResponse([], 'Room deleted successfully');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return $this->failedResponse(
+                'Failed to delete room',
+                HttpStatus::BAD_REQUEST,
+                [
+                    'message' => $e->getMessage(),
+                ]
+            );
+        }
     }
 
     private function findOwnedRoom(int $id): Room
@@ -269,11 +307,6 @@ class LandlordRoomController extends Controller
             'area' => ['nullable', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
             'booking_status' => ['nullable', 'in:pending,confirmed,available,occupied'],
-            'photos' => ['nullable', 'array'],
-            'photos.*.id' => ['nullable', 'integer'],
-            'photos.*.photo_url' => ['required', 'string', 'max:500'],
-            'photos.*.is_cover' => ['nullable', 'boolean'],
-            'photos.*.sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
     }
 
@@ -286,8 +319,11 @@ class LandlordRoomController extends Controller
         $counter = 1;
 
         while (
-        Room::withoutGlobalScopes()
-            ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+            Room::query()
+            ->withoutGlobalScopes()
+            ->when($ignoreId, function ($q) use ($ignoreId) {
+                $q->where('id', '!=', $ignoreId);
+            })
             ->where('slug', $slug)
             ->exists()
         ) {
@@ -298,24 +334,6 @@ class LandlordRoomController extends Controller
         return $slug;
     }
 
-    private function syncPhotos(Room $room, ?array $photos = null): void
-    {
-        if ($photos === null) {
-            return;
-        }
-
-        $room->photos()->delete();
-
-        foreach ($photos as $index => $photo) {
-            RoomPhoto::create([
-                'room_id' => $room->id,
-                'photo_url' => $photo['photo_url'],
-                'is_cover' => (bool) ($photo['is_cover'] ?? false),
-                'sort_order' => (int) ($photo['sort_order'] ?? $index),
-            ]);
-        }
-    }
-
     private function transformRoom(Room $room): array
     {
         $data = $room->toArray();
@@ -323,12 +341,18 @@ class LandlordRoomController extends Controller
         $data['post_type'] = $data['postType'] ?? null;
 
         if (!empty($data['photos'])) {
-            $data['photos'] = collect($data['photos'])->map(function ($photo) {
-                if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
-                    $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
-                }
-                return $photo;
-            })->values()->toArray();
+            $data['photos'] = collect($data['photos'])
+                ->map(function ($photo) {
+                    $photo['photo_path'] = $photo['photo_url'] ?? null;
+
+                    if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
+                        $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
+                    }
+
+                    return $photo;
+                })
+                ->values()
+                ->toArray();
         }
 
         return $data;

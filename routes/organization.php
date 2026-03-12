@@ -85,5 +85,15 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
                 Route::patch('/update/{id}', 'update');
                 Route::delete('/delete/{id}', 'destroy');
             });
+
+        Route::prefix('rooms/{roomId}/photos')
+            ->controller(\App\Http\Controllers\LandlordRoomPhotoController::class)
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/upload', 'upload');
+                Route::patch('/update/{photoId}', 'update');
+                Route::patch('/sort', 'sort');
+                Route::delete('/delete/{photoId}', 'destroy');
+            });
     });
 });

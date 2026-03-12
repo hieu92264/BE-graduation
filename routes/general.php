@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PostTypeController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\SliderController;
@@ -19,3 +20,5 @@ Route::post('contact/{id}', [\App\Http\Controllers\ContactController::class, 'st
 
 Route::get('post-types', [PostTypeController::class, 'index']);
 Route::get('post-types/options', [PostTypeController::class, 'options']);
+
+Route::get('categories/options', [CategoryController::class, 'options']);
