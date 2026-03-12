@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Room newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Room newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Room query()
+ *
  * @property BookingStatus $booking_status
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Booking> $bookings
  * @property-read int|null $bookings_count
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property-read int|null $photos_count
  * @property-read \App\Models\PostType|null $postType
  * @property-read \App\Models\Ward|null $ward
+ *
  * @mixin \Eloquent
  */
 class Room extends BaseModel
@@ -42,6 +44,10 @@ class Room extends BaseModel
         'area',
         'description',
         'booking_status',
+        'post_status',
+        'moderated_by',
+        'moderated_at',
+        'moderation_note',
     ];
 
     public function casts(): array
@@ -49,7 +55,8 @@ class Room extends BaseModel
         return [
             'price' => 'decimal:2',
             'area' => 'decimal:2',
-            'booking_status' => BookingStatus::class
+            'booking_status' => BookingStatus::class,
+            'moderated_at' => 'datetime',
         ];
     }
 
@@ -96,5 +103,10 @@ class Room extends BaseModel
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class, 'room_id');
+    }
+
+    public function moderator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'moderated_by');
     }
 }

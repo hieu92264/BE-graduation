@@ -96,4 +96,12 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
                 Route::delete('/delete/{photoId}', 'destroy');
             });
     });
+
+    Route::prefix('rooms/moderation')
+        ->middleware(['check.permission:org.room-moderation'])
+        ->controller(\App\Http\Controllers\AdminRoomModerationController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::patch('/update-status/{id}', 'updateStatus');
+        });
 });

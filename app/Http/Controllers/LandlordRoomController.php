@@ -156,6 +156,10 @@ class LandlordRoomController extends Controller
                     'area' => $validated['area'] ?? null,
                     'description' => $validated['description'] ?? null,
                     'booking_status' => $validated['booking_status'] ?? 'pending',
+                    'post_status' => 'pending',
+                    'moderated_by' => null,
+                    'moderated_at' => null,
+                    'moderation_note' => null,
                 ]);
 
             DB::commit();
@@ -219,6 +223,11 @@ class LandlordRoomController extends Controller
                 'area' => $validated['area'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'booking_status' => $validated['booking_status'] ?? $room->booking_status,
+
+                'post_status' => 'pending',
+                'moderated_by' => null,
+                'moderated_at' => null,
+                'moderation_note' => null,
             ]);
 
             DB::commit();
@@ -320,14 +329,14 @@ class LandlordRoomController extends Controller
 
         while (
             Room::query()
-            ->withoutGlobalScopes()
-            ->when($ignoreId, function ($q) use ($ignoreId) {
-                $q->where('id', '!=', $ignoreId);
-            })
-            ->where('slug', $slug)
-            ->exists()
+                ->withoutGlobalScopes()
+                ->when($ignoreId, function ($q) use ($ignoreId) {
+                    $q->where('id', '!=', $ignoreId);
+                })
+                ->where('slug', $slug)
+                ->exists()
         ) {
-            $slug = $base . '-' . $counter;
+            $slug = $base.'-'.$counter;
             $counter++;
         }
 
@@ -340,13 +349,13 @@ class LandlordRoomController extends Controller
 
         $data['post_type'] = $data['postType'] ?? null;
 
-        if (!empty($data['photos'])) {
+        if (! empty($data['photos'])) {
             $data['photos'] = collect($data['photos'])
                 ->map(function ($photo) {
                     $photo['photo_path'] = $photo['photo_url'] ?? null;
 
-                    if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
-                        $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
+                    if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
+                        $photo['photo_url'] = asset('storage/'.ltrim($photo['photo_url'], '/'));
                     }
 
                     return $photo;

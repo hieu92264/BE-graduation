@@ -28,7 +28,7 @@ class LandlordRoomPhotoController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
+            ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
             ->toArray();
 
         return $this->successResponse($photos, 'Fetched room photos successfully');
@@ -49,10 +49,14 @@ class LandlordRoomPhotoController extends Controller
         try {
             $relativePath = $this->saveImageToStorage($request->file('image'));
 
+            if (! Storage::disk('public')->exists($relativePath)) {
+                throw new \RuntimeException('Saved image not found in public storage.');
+            }
+
             $hasCover = $room->photos()->where('is_cover', true)->exists();
             $isCover = (bool) ($validated['is_cover'] ?? false);
 
-            if (!$hasCover) {
+            if (! $hasCover) {
                 $isCover = true;
             }
 
@@ -155,7 +159,7 @@ class LandlordRoomPhotoController extends Controller
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
-                ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
+                ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
                 ->toArray();
 
             return $this->successResponse($photos, 'Sorted room photos successfully');
@@ -218,20 +222,20 @@ class LandlordRoomPhotoController extends Controller
 
     private function saveImageToStorage(?UploadedFile $file): string
     {
-        if (!$file) {
+        if (! $file) {
             throw new \RuntimeException('Image file is required.');
         }
 
-        $fileNameWithoutExtension = now()->format('YmdHis') . '_' . Str::random(12);
-        $finalRelativePath = 'rooms/' . $fileNameWithoutExtension . '.webp';
-        $finalAbsolutePath = storage_path('app/public/' . $finalRelativePath);
+        $fileNameWithoutExtension = now()->format('YmdHis').'_'.Str::random(12);
+        $finalRelativePath = 'rooms/'.$fileNameWithoutExtension.'.webp';
+        $finalAbsolutePath = storage_path('app/public/'.$finalRelativePath);
 
         $originalExtension = strtolower($file->getClientOriginalExtension());
 
         if ($originalExtension === 'webp') {
-            Storage::disk('public')->putFileAs('rooms', $file, $fileNameWithoutExtension . '.webp');
+            Storage::disk('public')->putFileAs('rooms', $file, $fileNameWithoutExtension.'.webp');
         } else {
-            if (!is_dir(dirname($finalAbsolutePath))) {
+            if (! is_dir(dirname($finalAbsolutePath))) {
                 mkdir(dirname($finalAbsolutePath), 0777, true);
             }
 
@@ -243,7 +247,7 @@ class LandlordRoomPhotoController extends Controller
 
     private function deleteImageFromStorage(?string $relativePath): void
     {
-        if (!$relativePath) {
+        if (! $relativePath) {
             return;
         }
 
@@ -255,10 +259,31 @@ class LandlordRoomPhotoController extends Controller
     private function transformPhoto(RoomPhoto $photo): array
     {
         $data = $photo->toArray();
-        $data['photo_path'] = $photo->photo_url;
-        $data['photo_url'] = $photo->photo_url
-            ? asset('storage/' . ltrim($photo->photo_url, '/'))
-            : null;
+
+        $rawPath = $photo->photo_url ? ltrim($photo->photo_url, '/') : null;
+
+        $data['photo_path'] = $rawPath;
+        $data['photo_version'] = optional($photo->updated_at)->timestamp;
+
+        if (! $rawPath) {
+            $data['photo_url'] = null;
+
+            return $data;
+        }
+
+        if (str_starts_with($rawPath, 'http://') || str_starts_with($rawPath, 'https://')) {
+            $data['photo_url'] = $rawPath;
+
+            return $data;
+        }
+
+        if (str_starts_with($rawPath, 'storage/')) {
+            $data['photo_url'] = asset($rawPath);
+
+            return $data;
+        }
+
+        $data['photo_url'] = asset('storage/'.$rawPath);
 
         return $data;
     }

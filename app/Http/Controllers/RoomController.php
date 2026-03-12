@@ -23,7 +23,9 @@ class RoomController extends Controller
                 'photos' => function ($q) {
                     $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
                 },
-            ]);
+            ])
+            ->where('isactive', 'Y')
+            ->where('post_status', 'approved');
 
         if ($request->filled('keyword')) {
             $keyword = trim((string) $request->keyword);
@@ -118,6 +120,8 @@ class RoomController extends Controller
             ->whereHas('postType', function ($query) {
                 $query->where('priority', '>', 0);
             })
+            ->where('rooms.isactive', 'Y')
+            ->where('rooms.post_status', 'approved')
             ->join('post_types', 'rooms.post_type_id', '=', 'post_types.id')
             ->orderByDesc('post_types.priority')
             ->orderByDesc('rooms.created_at')
@@ -151,6 +155,8 @@ class RoomController extends Controller
                 }
                 $q->orWhere('slug', $slugOrId);
             })
+            ->where('isactive', 'Y')
+            ->where('post_status', 'approved')
             ->firstOrFail();
 
         return $this->successResponse($this->transformRoom($room));
@@ -162,17 +168,18 @@ class RoomController extends Controller
 
         $data['post_type'] = $data['postType'] ?? null;
 
-        if (!empty($data['photos'])) {
+        if (! empty($data['photos'])) {
             $data['photos'] = collect($data['photos'])->map(function ($photo) {
-                if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
-                    $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
+                if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
+                    $photo['photo_url'] = asset('storage/'.ltrim($photo['photo_url'], '/'));
                 }
+
                 return $photo;
             })->values()->toArray();
         }
 
-        if (!empty($data['owner']['profile']['avatar_url']) && !str_starts_with($data['owner']['profile']['avatar_url'], 'http')) {
-            $data['owner']['profile']['avatar_url'] = asset('storage/' . ltrim($data['owner']['profile']['avatar_url'], '/'));
+        if (! empty($data['owner']['profile']['avatar_url']) && ! str_starts_with($data['owner']['profile']['avatar_url'], 'http')) {
+            $data['owner']['profile']['avatar_url'] = asset('storage/'.ltrim($data['owner']['profile']['avatar_url'], '/'));
         }
 
         return $data;
