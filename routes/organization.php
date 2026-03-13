@@ -95,6 +95,14 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
                 Route::patch('/sort', 'sort');
                 Route::delete('/delete/{photoId}', 'destroy');
             });
+
+        Route::prefix('contacts')
+            ->controller(\App\Http\Controllers\ContactManagementController::class)
+            ->group(function () {
+                Route::get('/', fn (\Illuminate\Http\Request $request, \App\Http\Controllers\ContactManagementController $controller) => $controller->index($request->merge(['scope' => 'landlord'])));
+                Route::get('/{id}', fn (\Illuminate\Http\Request $request, int $id, \App\Http\Controllers\ContactManagementController $controller) => $controller->show($request->merge(['scope' => 'landlord']), $id));
+                Route::patch('/update-status/{id}', fn (\Illuminate\Http\Request $request, int $id, \App\Http\Controllers\ContactManagementController $controller) => $controller->updateStatus($request->merge(['scope' => 'landlord']), $id));
+            });
     });
 
     Route::prefix('rooms/moderation')
@@ -102,6 +110,15 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         ->controller(\App\Http\Controllers\AdminRoomModerationController::class)
         ->group(function () {
             Route::get('/', 'index');
+            Route::patch('/update-status/{id}', 'updateStatus');
+        });
+
+    Route::prefix('contacts')
+        ->middleware(['check.permission:org.contacts'])
+        ->controller(\App\Http\Controllers\ContactManagementController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{id}', 'show');
             Route::patch('/update-status/{id}', 'updateStatus');
         });
 });

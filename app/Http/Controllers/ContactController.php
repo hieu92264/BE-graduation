@@ -8,36 +8,22 @@ use App\Mail\ContactToLandlordMail;
 use App\Models\Contact;
 use App\Models\Room;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
     use ApiResponseTrait;
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreContactRequest $request, string $id): JsonResponse
     {
         $room = Room::with(['owner:id,email,username', 'owner.profile:user_id,full_name,phone_number'])
-            ->whereKey((int)$id)
+            ->withoutGlobalScopes()
+            ->whereKey((int) $id)
             ->firstOrFail();
 
         $landlordEmail = $room->owner?->email;
-        if (!$landlordEmail) {
-            return $this->failedResponse(
-                'Landlord email not found.',
-                404
-            );
+        if (! $landlordEmail) {
+            return $this->failedResponse('Landlord email not found.', 404);
         }
 
         $contact = Contact::create([
@@ -46,6 +32,7 @@ class ContactController extends Controller
             'phone' => $request->input('phone'),
             'subject' => $request->input('subject') ?: ("Liên hệ phòng #{$room->id}"),
             'message' => $request->input('message'),
+            'move_in_date' => $request->input('move_in_date'),
             'status' => 'new',
             'room_id' => $room->id,
             'owner_user_id' => $room->owner_user_id,
@@ -54,31 +41,19 @@ class ContactController extends Controller
         Mail::to($landlordEmail)->send(new ContactToLandlordMail($contact, $room));
 
         return $this->successResponse(
-            [], 'Success', 201
+            $this->transformContact($contact->fresh(['room', 'owner.profile'])),
+            'Gửi liên hệ thành công',
+            201
         );
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    private function transformContact(Contact $contact): array
     {
-        //
-    }
+        $data = $contact->toArray();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        $data['room_title'] = $contact->room?->title;
+        $data['owner_name'] = $contact->owner?->profile?->full_name ?: $contact->owner?->username;
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return $data;
     }
 }
