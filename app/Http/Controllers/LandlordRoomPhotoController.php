@@ -28,7 +28,7 @@ class LandlordRoomPhotoController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
+            ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
             ->toArray();
 
         return $this->successResponse($photos, 'Fetched room photos successfully');
@@ -159,7 +159,7 @@ class LandlordRoomPhotoController extends Controller
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
-                ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
+                ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
                 ->toArray();
 
             return $this->successResponse($photos, 'Sorted room photos successfully');
@@ -186,6 +186,8 @@ class LandlordRoomPhotoController extends Controller
 
             $this->deleteImageFromStorage($photo->photo_url);
             $photo->delete();
+
+            $this->reindexRoomPhotos($room);
 
             if ($wasCover) {
                 $nextPhoto = $room->photos()
@@ -226,14 +228,14 @@ class LandlordRoomPhotoController extends Controller
             throw new \RuntimeException('Image file is required.');
         }
 
-        $fileNameWithoutExtension = now()->format('YmdHis').'_'.Str::random(12);
-        $finalRelativePath = 'rooms/'.$fileNameWithoutExtension.'.webp';
-        $finalAbsolutePath = storage_path('app/public/'.$finalRelativePath);
+        $fileNameWithoutExtension = now()->format('YmdHis') . '_' . Str::random(12);
+        $finalRelativePath = 'rooms/' . $fileNameWithoutExtension . '.webp';
+        $finalAbsolutePath = storage_path('app/public/' . $finalRelativePath);
 
         $originalExtension = strtolower($file->getClientOriginalExtension());
 
         if ($originalExtension === 'webp') {
-            Storage::disk('public')->putFileAs('rooms', $file, $fileNameWithoutExtension.'.webp');
+            Storage::disk('public')->putFileAs('rooms', $file, $fileNameWithoutExtension . '.webp');
         } else {
             if (! is_dir(dirname($finalAbsolutePath))) {
                 mkdir(dirname($finalAbsolutePath), 0777, true);
@@ -254,6 +256,21 @@ class LandlordRoomPhotoController extends Controller
         if (Storage::disk('public')->exists($relativePath)) {
             Storage::disk('public')->delete($relativePath);
         }
+    }
+
+    private function reindexRoomPhotos(Room $room): void
+    {
+        $room->photos()
+            ->orderByDesc('is_cover')
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->values()
+            ->each(function (RoomPhoto $photo, int $index) {
+                if ((int) $photo->sort_order !== $index) {
+                    $photo->update(['sort_order' => $index]);
+                }
+            });
     }
 
     private function transformPhoto(RoomPhoto $photo): array
@@ -283,7 +300,7 @@ class LandlordRoomPhotoController extends Controller
             return $data;
         }
 
-        $data['photo_url'] = asset('storage/'.$rawPath);
+        $data['photo_url'] = asset('storage/' . $rawPath);
 
         return $data;
     }
