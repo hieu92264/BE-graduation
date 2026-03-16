@@ -39,11 +39,11 @@ class RolePermissionSeeder extends Seeder
             ->pluck('id')
             ->all();
 
-        RolePermissions::query()->where('role_name', $role)->delete();
+        RolePermissions::query()->where('user_type', $role)->delete();
 
         foreach ($permissionIds as $permissionId) {
             RolePermissions::query()->create([
-                'role_name' => $role,
+                'user_type' => $role,
                 'permission_id' => $permissionId,
             ]);
         }

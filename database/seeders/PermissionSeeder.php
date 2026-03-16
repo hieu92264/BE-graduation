@@ -118,7 +118,19 @@ class PermissionSeeder extends Seeder
             [
                 'code' => 'org.contacts',
                 'name' => 'Quản lý contact lead',
-                'url' => null,
+                'url' => '/organizations/contacts',
+                'parent_id' => $operationId,
+            ],
+            [
+                'code' => 'org.bookings',
+                'name' => 'Quản lý booking/deal',
+                'url' => '/organizations/bookings',
+                'parent_id' => $operationId,
+            ],
+            [
+                'code' => 'org.reviews',
+                'name' => 'Quản lý review/comment',
+                'url' => '/organizations/reviews',
                 'parent_id' => $operationId,
             ],
         ];

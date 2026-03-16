@@ -22,3 +22,17 @@ Route::get('post-types', [PostTypeController::class, 'index']);
 Route::get('post-types/options', [PostTypeController::class, 'options']);
 
 Route::get('categories/options', [CategoryController::class, 'options']);
+
+Route::prefix('rooms/{roomId}/reviews')
+    ->controller(\App\Http\Controllers\ReviewController::class)
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::middleware(['jwt.auth'])->post('/create', 'store');
+    });
+
+Route::prefix('reviews')
+    ->middleware(['jwt.auth'])
+    ->controller(\App\Http\Controllers\ReviewController::class)
+    ->group(function () {
+        Route::post('/{commentId}/reply', 'reply');
+    });

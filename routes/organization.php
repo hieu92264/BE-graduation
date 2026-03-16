@@ -99,9 +99,9 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         Route::prefix('contacts')
             ->controller(\App\Http\Controllers\ContactManagementController::class)
             ->group(function () {
-                Route::get('/', fn (\Illuminate\Http\Request $request, \App\Http\Controllers\ContactManagementController $controller) => $controller->index($request->merge(['scope' => 'landlord'])));
-                Route::get('/{id}', fn (\Illuminate\Http\Request $request, int $id, \App\Http\Controllers\ContactManagementController $controller) => $controller->show($request->merge(['scope' => 'landlord']), $id));
-                Route::patch('/update-status/{id}', fn (\Illuminate\Http\Request $request, int $id, \App\Http\Controllers\ContactManagementController $controller) => $controller->updateStatus($request->merge(['scope' => 'landlord']), $id));
+                Route::get('/', 'landlordIndex');
+                Route::get('/{id}', 'landlordShow');
+                Route::patch('/update-status/{id}', 'landlordUpdateStatus');
             });
     });
 
@@ -119,6 +119,25 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
+            Route::patch('/update-status/{id}', 'updateStatus');
+        });
+
+    Route::prefix('bookings')
+        ->middleware(['check.permission:org.bookings'])
+        ->controller(\App\Http\Controllers\BookingController::class)
+        ->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{id}', 'show');
+            Route::post('/create', 'store');
+            Route::patch('/update/{id}', 'update');
+            Route::delete('/delete/{id}', 'destroy');
+        });
+
+    Route::prefix('reviews')
+        ->middleware(['check.permission:org.reviews'])
+        ->controller(\App\Http\Controllers\ReviewModerationController::class)
+        ->group(function () {
+            Route::get('/', 'index');
             Route::patch('/update-status/{id}', 'updateStatus');
         });
 });

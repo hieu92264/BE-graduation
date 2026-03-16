@@ -143,4 +143,22 @@ class ContactManagementController extends Controller
 
         return $data;
     }
+
+    public function landlordIndex(Request $request): JsonResponse
+    {
+        $request->merge(['scope' => 'landlord']);
+        return $this->index($request);
+    }
+
+    public function landlordShow(Request $request, int $id): JsonResponse
+    {
+        $request->merge(['scope' => 'landlord']);
+        return $this->show($request, $id);
+    }
+
+    public function landlordUpdateStatus(Request $request, int $id): JsonResponse
+    {
+        $request->merge(['scope' => 'landlord']);
+        return $this->updateStatus($request, $id);
+    }
 }
