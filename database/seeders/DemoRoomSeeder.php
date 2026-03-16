@@ -180,6 +180,7 @@ class DemoRoomSeeder extends Seeder
                     'area' => $item['area'],
                     'description' => $item['description'],
                     'booking_status' => $item['booking_status'],
+                    'post_status' => 'approved',
                 ]
             );
 

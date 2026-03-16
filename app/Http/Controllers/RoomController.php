@@ -24,7 +24,7 @@ class RoomController extends Controller
                     $q->orderByDesc('is_cover')->orderBy('sort_order')->orderBy('id');
                 },
             ])
-            ->where('isactive', 'Y')
+            ->where('rooms.isactive', 'Y')
             ->where('post_status', 'approved');
 
         if ($request->filled('keyword')) {
@@ -128,7 +128,7 @@ class RoomController extends Controller
             ->select('rooms.*')
             ->take(10)
             ->get()
-            ->map(fn ($room) => $this->transformRoom($room))
+            ->map(fn($room) => $this->transformRoom($room))
             ->toArray();
 
         return $this->successResponse($rooms);
@@ -171,7 +171,7 @@ class RoomController extends Controller
         if (! empty($data['photos'])) {
             $data['photos'] = collect($data['photos'])->map(function ($photo) {
                 if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
-                    $photo['photo_url'] = asset('storage/'.ltrim($photo['photo_url'], '/'));
+                    $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
                 }
 
                 return $photo;
@@ -179,7 +179,7 @@ class RoomController extends Controller
         }
 
         if (! empty($data['owner']['profile']['avatar_url']) && ! str_starts_with($data['owner']['profile']['avatar_url'], 'http')) {
-            $data['owner']['profile']['avatar_url'] = asset('storage/'.ltrim($data['owner']['profile']['avatar_url'], '/'));
+            $data['owner']['profile']['avatar_url'] = asset('storage/' . ltrim($data['owner']['profile']['avatar_url'], '/'));
         }
 
         return $data;
