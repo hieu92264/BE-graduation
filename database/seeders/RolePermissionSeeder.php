@@ -20,38 +20,32 @@ class RolePermissionSeeder extends Seeder
             'org.categories',
             'org.post-types',
             'org.sliders',
+            'org.room-moderation',
+            'org.contacts',
         ];
 
         $landlordCodes = [
-            // hiện tại landlord module chưa check.permission
-            // để trống vẫn đúng với code hiện tại
+            // landlord hiện dùng route riêng, chưa check.permission
         ];
 
-        $tenantCodes = [
-            // tenant không có quyền admin
-        ];
+        $this->syncPermissionsForRole(UserType::ADMIN->value, $adminCodes);
+        $this->syncPermissionsForRole(UserType::LANDLORD->value, $landlordCodes);
+    }
 
-        $map = [
-            UserType::ADMIN->value => $adminCodes,
-            UserType::LANDLORD->value => $landlordCodes,
-            UserType::TENANT->value => $tenantCodes,
-        ];
+    private function syncPermissionsForRole(string $role, array $codes): void
+    {
+        $permissionIds = Permission::query()
+            ->whereIn('code', $codes)
+            ->pluck('id')
+            ->all();
 
-        foreach ($map as $userType => $codes) {
-            $permissionIds = Permission::query()
-                ->whereIn('code', $codes)
-                ->pluck('id')
-                ->all();
+        RolePermissions::query()->where('role_name', $role)->delete();
 
-            foreach ($permissionIds as $permissionId) {
-                RolePermissions::query()->updateOrCreate(
-                    [
-                        'user_type' => $userType,
-                        'permission_id' => $permissionId,
-                    ],
-                    []
-                );
-            }
+        foreach ($permissionIds as $permissionId) {
+            RolePermissions::query()->create([
+                'role_name' => $role,
+                'permission_id' => $permissionId,
+            ]);
         }
     }
 }

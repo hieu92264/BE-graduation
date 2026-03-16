@@ -37,6 +37,15 @@ class PermissionSeeder extends Seeder
                 'user_name_created' => 'seeder',
                 'user_name_updated' => 'seeder',
             ],
+            [
+                'code' => 'org.operation',
+                'name' => 'Vận hành',
+                'url' => null,
+                'parent_id' => null,
+                'isactive' => 'Y',
+                'user_name_created' => 'seeder',
+                'user_name_updated' => 'seeder',
+            ],
         ];
 
         foreach ($roots as $row) {
@@ -49,6 +58,7 @@ class PermissionSeeder extends Seeder
         $orgId = Permission::query()->where('code', 'org')->value('id');
         $masterDataId = Permission::query()->where('code', 'org.master-data')->value('id');
         $contentId = Permission::query()->where('code', 'org.content')->value('id');
+        $operationId = Permission::query()->where('code', 'org.operation')->value('id');
 
         $children = [
             [
@@ -98,6 +108,18 @@ class PermissionSeeder extends Seeder
                 'name' => 'Quản lý slider',
                 'url' => '/organizations/sliders',
                 'parent_id' => $contentId,
+            ],
+            [
+                'code' => 'org.room-moderation',
+                'name' => 'Duyệt tin đăng',
+                'url' => '/organizations/room-moderation',
+                'parent_id' => $operationId,
+            ],
+            [
+                'code' => 'org.contacts',
+                'name' => 'Quản lý contact lead',
+                'url' => null,
+                'parent_id' => $operationId,
             ],
         ];
 
