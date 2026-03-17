@@ -38,7 +38,7 @@ class ReviewController extends Controller
 
         $rows = $query
             ->paginate($perPage)
-            ->through(fn (Comment $comment) => $this->transformComment($comment));
+            ->through(fn(Comment $comment) => $this->transformComment($comment));
 
         $summary = [
             'total_reviews' => Comment::query()
@@ -61,7 +61,7 @@ class ReviewController extends Controller
             'rating' => ['nullable', 'integer', 'min:1', 'max:5'],
         ]);
 
-        $user = auth()->user();
+        $user = auth('api')->user();
         $room = Room::query()->where('post_status', 'approved')->findOrFail($roomId);
 
         $comment = Comment::query()->create([
@@ -69,7 +69,7 @@ class ReviewController extends Controller
             'user_id' => $user->id,
             'content' => $validated['content'],
             'rating' => $validated['rating'] ?? null,
-            'status' => 'visible',
+            'status' => 'pending',
         ]);
 
         $comment->load([
@@ -81,7 +81,7 @@ class ReviewController extends Controller
 
         return $this->successResponse(
             $this->transformComment($comment),
-            'Created review successfully',
+            'Đánh giá của bạn đã được gửi và đang chờ duyệt',
             201
         );
     }
@@ -92,7 +92,7 @@ class ReviewController extends Controller
             'content' => ['required', 'string', 'max:3000'],
         ]);
 
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         $comment = Comment::query()
             ->with('room:id,owner_user_id')
@@ -127,12 +127,11 @@ class ReviewController extends Controller
     private function transformComment(Comment $comment): array
     {
         $data = $comment->toArray();
-
         $data['user_name'] = $comment->user?->profile?->full_name ?: $comment->user?->username;
         $data['user_avatar'] = $comment->user?->profile?->avatar_url;
 
         $data['replies'] = collect($comment->replies ?? [])->map(
-            fn (CommentReply $reply) => $this->transformReply($reply)
+            fn(CommentReply $reply) => $this->transformReply($reply)
         )->values()->toArray();
 
         return $data;

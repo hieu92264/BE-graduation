@@ -28,20 +28,24 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::put('/{id}/permissions', 'syncPermissions')->name('users.permissions.update');
         });
 
-    Route::prefix('user-profiles')->middleware(['check.permission:org.user-profiles'])->controller(UserProfileController::class)->group(function () {
-        Route::get('/', 'index')->name('user-profiles');
-        Route::post('/create', 'store')->name('user-profiles.create');
-        Route::patch('/update/{id}', 'update')->name('user-profiles.update');
-        Route::delete('/delete/{id}', 'destroy')->name('user-profiles.delete');
-    });
+    Route::prefix('user-profiles')
+        ->middleware(['check.permission:org.user-profiles'])
+        ->controller(UserProfileController::class)->group(function () {
+            Route::get('/', 'index')->name('user-profiles');
+            Route::post('/create', 'store')->name('user-profiles.create');
+            Route::patch('/update/{id}', 'update')->name('user-profiles.update');
+            Route::delete('/delete/{id}', 'destroy')->name('user-profiles.delete');
+        });
 
-    Route::prefix('employees')->middleware(['check.permission:org.employees'])->controller(\App\Http\Controllers\EmployeeController::class)->group(function () {
-        Route::get('/', 'getAll')->name('employees');
-        Route::post('/create', 'create')->name('employees.create');
-        Route::patch('/update/{id}', 'update')->name('employees.update');
-        Route::delete('/delete/{id}', 'delete')->name('employees.delete');
-        Route::get('/user-options', 'getUserOptions')->name('employees.user-options');
-    });
+    Route::prefix('employees')
+        ->middleware(['check.permission:org.employees'])
+        ->controller(\App\Http\Controllers\EmployeeController::class)->group(function () {
+            Route::get('/', 'getAll')->name('employees');
+            Route::post('/create', 'create')->name('employees.create');
+            Route::patch('/update/{id}', 'update')->name('employees.update');
+            Route::delete('/delete/{id}', 'delete')->name('employees.delete');
+            Route::get('/user-options', 'getUserOptions')->name('employees.user-options');
+        });
 
     Route::prefix('categories')
         ->middleware(['check.permission:org.categories'])
@@ -99,9 +103,29 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         Route::prefix('contacts')
             ->controller(\App\Http\Controllers\ContactManagementController::class)
             ->group(function () {
+                // route cũ
                 Route::get('/', 'landlordIndex');
                 Route::get('/{id}', 'landlordShow');
                 Route::patch('/update-status/{id}', 'landlordUpdateStatus');
+
+                // alias route mới cho FE mới
+                Route::patch('/{id}/status', 'landlordUpdateStatus');
+            });
+
+        Route::prefix('bookings')
+            ->controller(\App\Http\Controllers\BookingController::class)
+            ->group(function () {
+                // route cũ
+                Route::get('/', 'index');
+                Route::get('/{id}', 'show');
+                Route::post('/create', 'store');
+                Route::patch('/update/{id}', 'update');
+                Route::delete('/delete/{id}', 'destroy');
+
+                // alias route mới cho FE mới
+                Route::post('/', 'store');
+                Route::patch('/{id}', 'update');
+                Route::delete('/{id}', 'destroy');
             });
     });
 
@@ -117,20 +141,30 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         ->middleware(['check.permission:org.contacts'])
         ->controller(\App\Http\Controllers\ContactManagementController::class)
         ->group(function () {
+            // route cũ
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
             Route::patch('/update-status/{id}', 'updateStatus');
+
+            // alias route mới cho FE mới
+            Route::patch('/{id}/status', 'updateStatus');
         });
 
     Route::prefix('bookings')
         ->middleware(['check.permission:org.bookings'])
         ->controller(\App\Http\Controllers\BookingController::class)
         ->group(function () {
+            // route cũ
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
             Route::post('/create', 'store');
             Route::patch('/update/{id}', 'update');
             Route::delete('/delete/{id}', 'destroy');
+
+            // alias route mới cho FE mới
+            Route::post('/', 'store');
+            Route::patch('/{id}', 'update');
+            Route::delete('/{id}', 'destroy');
         });
 
     Route::prefix('reviews')
@@ -139,5 +173,6 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         ->group(function () {
             Route::get('/', 'index');
             Route::patch('/update-status/{id}', 'updateStatus');
+            Route::patch('/{id}/status', 'updateStatus');
         });
 });

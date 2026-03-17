@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Enums\LeadStatus;
 use App\Common\Traits\ApiResponseTrait;
 use App\Models\Contact;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ContactManagementController extends Controller
 {
@@ -13,7 +15,7 @@ class ContactManagementController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         $query = Contact::query()
             ->with([
@@ -53,14 +55,14 @@ class ContactManagementController extends Controller
 
         $contacts = $query
             ->paginate($perPage)
-            ->through(fn (Contact $contact) => $this->transformContact($contact));
+            ->through(fn(Contact $contact) => $this->transformContact($contact));
 
         return $this->paginate($contacts, 'Fetched contacts successfully');
     }
 
     public function show(Request $request, int $id): JsonResponse
     {
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         $contact = Contact::query()
             ->with([
@@ -73,6 +75,7 @@ class ContactManagementController extends Controller
             ->findOrFail($id);
 
         $scope = $request->string('scope')->toString();
+
         if ($scope === 'landlord' && (int) $contact->owner_user_id !== (int) $user->id) {
             abort(403, 'Bạn không có quyền xem lead này');
         }
@@ -86,11 +89,14 @@ class ContactManagementController extends Controller
     public function updateStatus(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:new,contacted,successful,unsuccessful'],
+            'status' => ['required', Rule::in(LeadStatus::values())],
             'status_note' => ['nullable', 'string', 'max:3000'],
+            'lost_reason' => ['nullable', 'string', 'max:3000'],
+            'next_follow_up_at' => ['nullable', 'date'],
+            'viewing_at' => ['nullable', 'date'],
         ]);
 
-        $user = auth()->user();
+        $user = auth('api')->user();
 
         $contact = Contact::query()
             ->with([
@@ -103,16 +109,37 @@ class ContactManagementController extends Controller
             ->findOrFail($id);
 
         $scope = $request->string('scope')->toString();
+
         if ($scope === 'landlord' && (int) $contact->owner_user_id !== (int) $user->id) {
             abort(403, 'Bạn không có quyền cập nhật lead này');
         }
 
-        $contact->update([
+        if ($validated['status'] === LeadStatus::VIEWING_SCHEDULED->value && empty($validated['viewing_at'])) {
+            return $this->failedResponse('Vui lòng truyền viewing_at khi hẹn xem phòng.', 422);
+        }
+
+        $payload = [
             'status' => $validated['status'],
             'status_note' => $validated['status_note'] ?? null,
+            'lost_reason' => $validated['lost_reason'] ?? null,
+            'next_follow_up_at' => $validated['next_follow_up_at'] ?? null,
             'handled_by' => $user->id,
             'handled_at' => now(),
-        ]);
+        ];
+
+        if ($validated['status'] === LeadStatus::CONTACTED->value) {
+            $payload['last_contacted_at'] = now();
+        }
+
+        if ($validated['status'] === LeadStatus::VIEWING_SCHEDULED->value) {
+            $payload['viewing_at'] = $validated['viewing_at'];
+        }
+
+        if ($validated['status'] !== LeadStatus::LOST->value) {
+            $payload['lost_reason'] = null;
+        }
+
+        $contact->update($payload);
 
         $contact->refresh()->load([
             'room:id,title,slug,address,price,owner_user_id',

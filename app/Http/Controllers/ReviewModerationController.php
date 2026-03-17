@@ -52,7 +52,7 @@ class ReviewModerationController extends Controller
 
         $rows = $query
             ->paginate($perPage)
-            ->through(fn (Comment $comment) => $this->transformComment($comment));
+            ->through(fn(Comment $comment) => $this->transformComment($comment));
 
         return $this->paginate($rows, 'Fetched review moderation list successfully');
     }
@@ -60,10 +60,11 @@ class ReviewModerationController extends Controller
     public function updateStatus(Request $request, int $id): JsonResponse
     {
         $validated = $request->validate([
-            'status' => ['required', 'in:visible,hidden'],
+            'status' => ['required', 'in:pending,visible,hidden'],
         ]);
 
         $comment = Comment::query()->findOrFail($id);
+
         $comment->update([
             'status' => $validated['status'],
         ]);

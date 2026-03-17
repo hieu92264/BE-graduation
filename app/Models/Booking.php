@@ -2,32 +2,23 @@
 
 namespace App\Models;
 
-use App\Common\Enums\BookingStatus;
+use App\Common\Enums\DealStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking query()
- * @property BookingStatus $status
- * @property-read \App\Models\User|null $landlord
- * @property-read \App\Models\Room|null $room
- * @property-read \App\Models\User|null $tenant
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking withTrashed(bool $withTrashed = true)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Booking withoutTrashed()
- * @mixin \Eloquent
- */
 class Booking extends Model
 {
     use SoftDeletes, HasFactory;
 
     protected $fillable = [
         'room_id',
+        'contact_id',
         'tenant_user_id',
+        'tenant_name',
+        'tenant_phone',
+        'tenant_email',
         'landlord_user_id',
         'start_date',
         'end_date',
@@ -36,7 +27,11 @@ class Booking extends Model
         'commission_percent',
         'commission_amount',
         'status',
-        'note'
+        'note',
+        'reserved_at',
+        'confirmed_at',
+        'cancelled_at',
+        'completed_at',
     ];
 
     protected function casts(): array
@@ -46,13 +41,23 @@ class Booking extends Model
             'end_date' => 'date',
             'agreed_price' => 'decimal:2',
             'commission_percent' => 'decimal:2',
-            'status' => BookingStatus::class
+            'commission_amount' => 'decimal:2',
+            'reserved_at' => 'datetime',
+            'confirmed_at' => 'datetime',
+            'cancelled_at' => 'datetime',
+            'completed_at' => 'datetime',
+            'status' => DealStatus::class,
         ];
     }
 
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class, 'room_id');
+    }
+
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class, 'contact_id');
     }
 
     public function tenant(): BelongsTo

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Common\Enums\LeadStatus;
 use App\Common\Traits\ApiResponseTrait;
 use App\Http\Requests\StoreContactRequest;
 use App\Mail\ContactToLandlordMail;
@@ -21,6 +22,10 @@ class ContactController extends Controller
             ->whereKey((int) $id)
             ->firstOrFail();
 
+        if ($room->post_status !== 'approved') {
+            return $this->failedResponse('Phòng chưa sẵn sàng nhận liên hệ.', 422);
+        }
+
         $landlordEmail = $room->owner?->email;
         if (! $landlordEmail) {
             return $this->failedResponse('Landlord email not found.', 404);
@@ -33,7 +38,9 @@ class ContactController extends Controller
             'subject' => $request->input('subject') ?: ("Liên hệ phòng #{$room->id}"),
             'message' => $request->input('message'),
             'move_in_date' => $request->input('move_in_date'),
-            'status' => 'new',
+            'preferred_viewing_time' => $request->input('preferred_viewing_time'),
+            'status' => LeadStatus::NEW->value,
+            'source' => 'room_detail_form',
             'room_id' => $room->id,
             'owner_user_id' => $room->owner_user_id,
         ]);
@@ -50,7 +57,6 @@ class ContactController extends Controller
     private function transformContact(Contact $contact): array
     {
         $data = $contact->toArray();
-
         $data['room_title'] = $contact->room?->title;
         $data['owner_name'] = $contact->owner?->profile?->full_name ?: $contact->owner?->username;
 

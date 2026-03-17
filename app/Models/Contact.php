@@ -2,17 +2,11 @@
 
 namespace App\Models;
 
+use App\Common\Enums\LeadStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Contact query()
- *
- * @mixin \Eloquent
- */
 class Contact extends Model
 {
     use HasFactory;
@@ -24,8 +18,14 @@ class Contact extends Model
         'subject',
         'message',
         'move_in_date',
+        'preferred_viewing_time',
         'status',
         'status_note',
+        'lost_reason',
+        'next_follow_up_at',
+        'last_contacted_at',
+        'viewing_at',
+        'source',
         'room_id',
         'owner_user_id',
         'handled_by',
@@ -36,7 +36,11 @@ class Contact extends Model
     {
         return [
             'move_in_date' => 'date',
+            'next_follow_up_at' => 'datetime',
+            'last_contacted_at' => 'datetime',
+            'viewing_at' => 'datetime',
             'handled_at' => 'datetime',
+            'status' => LeadStatus::class,
         ];
     }
 
