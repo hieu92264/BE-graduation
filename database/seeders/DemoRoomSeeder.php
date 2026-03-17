@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Common\Enums\DealStatus;
+use App\Common\Enums\LeadStatus;
 use App\Models\Booking;
 use App\Models\Category;
 use App\Models\City;
@@ -64,6 +66,7 @@ class DemoRoomSeeder extends Seeder
                 'area' => 22,
                 'description' => 'Phòng sạch đẹp, có máy lạnh, giờ giấc tự do, gần trường đại học và siêu thị.',
                 'booking_status' => 'available',
+                'availability_status' => 'available',
                 'post_status' => 'approved',
                 'isactive' => 'Y',
             ],
@@ -80,6 +83,7 @@ class DemoRoomSeeder extends Seeder
                 'area' => 18,
                 'description' => 'Phòng có gác, WC riêng, phù hợp sinh viên hoặc người đi làm.',
                 'booking_status' => 'occupied',
+                'availability_status' => 'occupied',
                 'post_status' => 'approved',
                 'isactive' => 'Y',
             ],
@@ -95,7 +99,8 @@ class DemoRoomSeeder extends Seeder
                 'price' => 5200000,
                 'area' => 28,
                 'description' => 'Căn hộ mini phù hợp 1-2 người, an ninh tốt, có chỗ để xe.',
-                'booking_status' => 'pending',
+                'booking_status' => 'available',
+                'availability_status' => 'available',
                 'post_status' => 'pending',
                 'isactive' => 'Y',
             ],
@@ -112,6 +117,7 @@ class DemoRoomSeeder extends Seeder
                 'area' => 30,
                 'description' => 'Có máy giặt, nóng lạnh, điều hòa, khu vực đông dân cư và tiện đi lại.',
                 'booking_status' => 'available',
+                'availability_status' => 'available',
                 'post_status' => 'pending',
                 'isactive' => 'Y',
             ],
@@ -127,7 +133,8 @@ class DemoRoomSeeder extends Seeder
                 'price' => 12000000,
                 'area' => 65,
                 'description' => 'Nhà riêng đủ nội thất cơ bản, thích hợp hộ gia đình hoặc nhóm bạn.',
-                'booking_status' => 'confirmed',
+                'booking_status' => 'available',
+                'availability_status' => 'available',
                 'post_status' => 'rejected',
                 'isactive' => 'Y',
             ],
@@ -144,6 +151,7 @@ class DemoRoomSeeder extends Seeder
                 'area' => 20,
                 'description' => 'Phòng đẹp, thoáng, gần trung tâm, phù hợp người đi làm.',
                 'booking_status' => 'available',
+                'availability_status' => 'hidden',
                 'post_status' => 'hidden',
                 'isactive' => 'N',
             ],
@@ -188,6 +196,7 @@ class DemoRoomSeeder extends Seeder
                     'area' => $item['area'],
                     'description' => $item['description'],
                     'booking_status' => $item['booking_status'],
+                    'availability_status' => $item['availability_status'],
                     'post_status' => $item['post_status'],
                     'moderation_note' => match ($item['post_status']) {
                         'approved' => 'Tin hợp lệ, thông tin rõ ràng.',
@@ -195,7 +204,8 @@ class DemoRoomSeeder extends Seeder
                         'hidden' => 'Tin tạm ẩn do chủ nhà chưa cập nhật lại thông tin.',
                         default => null,
                     },
-                    'moderated_at' => in_array($item['post_status'], ['approved', 'rejected', 'hidden'])
+                    'moderated_by' => in_array($item['post_status'], ['approved', 'rejected', 'hidden'], true) ? $admin?->id : null,
+                    'moderated_at' => in_array($item['post_status'], ['approved', 'rejected', 'hidden'], true)
                         ? now()->subDays(rand(1, 10))
                         : null,
                 ]
@@ -220,11 +230,9 @@ class DemoRoomSeeder extends Seeder
         $room2 = $savedRooms[1] ?? null;
         $room3 = $savedRooms[2] ?? null;
         $room4 = $savedRooms[3] ?? null;
-        $room5 = $savedRooms[4] ?? null;
-        $room6 = $savedRooms[5] ?? null;
 
         if ($room1) {
-            $comment1 = Comment::query()->updateOrCreate(
+            $commentVisible = Comment::query()->updateOrCreate(
                 [
                     'room_id' => $room1->id,
                     'user_id' => $tenant1->id,
@@ -238,7 +246,7 @@ class DemoRoomSeeder extends Seeder
 
             CommentReply::query()->updateOrCreate(
                 [
-                    'comment_id' => $comment1->id,
+                    'comment_id' => $commentVisible->id,
                     'user_id' => $landlord1->id,
                     'content' => 'Cảm ơn bạn đã quan tâm, bên mình luôn hỗ trợ khách thuê tốt nhất.',
                 ],
@@ -246,24 +254,42 @@ class DemoRoomSeeder extends Seeder
                     'status' => 'visible',
                 ]
             );
-        }
 
-        if ($room4) {
             Comment::query()->updateOrCreate(
                 [
-                    'room_id' => $room4->id,
+                    'room_id' => $room1->id,
                     'user_id' => $tenant2->id,
-                    'content' => 'Phòng đẹp, khu vực đi lại thuận tiện.',
+                    'content' => 'Mình muốn hỏi thêm về giờ giấc và chỗ để xe.',
                 ],
                 [
                     'rating' => 4,
-                    'status' => 'visible',
+                    'status' => 'pending',
                 ]
             );
         }
 
+        if ($room2) {
+            Comment::query()->updateOrCreate(
+                [
+                    'room_id' => $room2->id,
+                    'user_id' => $tenant3->id,
+                    'content' => 'Phòng ổn nhưng mình không hợp khu vực này.',
+                ],
+                [
+                    'rating' => 3,
+                    'status' => 'hidden',
+                ]
+            );
+        }
+
+        $contactNew = null;
+        $contactViewing = null;
+        $contactNegotiating = null;
+        $contactWon = null;
+        $contactLost = null;
+
         if ($room1) {
-            Contact::query()->updateOrCreate(
+            $contactNew = Contact::query()->updateOrCreate(
                 [
                     'room_id' => $room1->id,
                     'email' => 'lead1@example.com',
@@ -275,84 +301,145 @@ class DemoRoomSeeder extends Seeder
                     'subject' => 'Xin xem phòng cuối tuần',
                     'message' => 'Mình muốn xem phòng vào chiều thứ 7, còn phòng không ạ?',
                     'move_in_date' => now()->addDays(5)->toDateString(),
-                    'status' => 'new',
+                    'preferred_viewing_time' => 'Chiều thứ 7 sau 17:00',
+                    'status' => LeadStatus::NEW->value,
                     'status_note' => 'Lead mới từ form public, cần gọi xác nhận lịch xem phòng.',
+                    'source' => 'room_detail_form',
                     'handled_by' => null,
                     'handled_at' => null,
                 ]
             );
-        }
 
-        if ($room4) {
-            Contact::query()->updateOrCreate(
+            $contactViewing = Contact::query()->updateOrCreate(
                 [
-                    'room_id' => $room4->id,
+                    'room_id' => $room1->id,
                     'email' => 'lead2@example.com',
                 ],
                 [
-                    'owner_user_id' => $landlord2->id,
+                    'owner_user_id' => $landlord1->id,
                     'name' => 'Trần Minh Tìm Phòng',
                     'phone' => '0988888888',
-                    'subject' => 'Hỏi thêm về phí dịch vụ',
-                    'message' => 'Cho mình hỏi phòng này đã bao gồm điện nước và internet chưa?',
+                    'subject' => 'Hẹn xem phòng buổi tối',
+                    'message' => 'Cho mình xem phòng vào tối mai sau giờ làm.',
                     'move_in_date' => now()->addDays(10)->toDateString(),
-                    'status' => 'contacted',
-                    'status_note' => 'Đã gọi tư vấn, khách đang cân nhắc ngân sách.',
+                    'preferred_viewing_time' => '19:00 - 20:00',
+                    'status' => LeadStatus::VIEWING_SCHEDULED->value,
+                    'status_note' => 'Đã xác nhận lịch xem phòng với khách.',
+                    'viewing_at' => now()->addDays(2)->setTime(19, 0),
+                    'next_follow_up_at' => now()->addDays(2)->setTime(21, 0),
+                    'source' => 'room_detail_form',
                     'handled_by' => $admin?->id,
-                    'handled_at' => now()->subDay(),
+                    'handled_at' => now()->subHours(4),
                 ]
             );
-        }
 
-        if ($room2) {
-            Contact::query()->updateOrCreate(
+            $contactNegotiating = Contact::query()->updateOrCreate(
                 [
-                    'room_id' => $room2->id,
+                    'room_id' => $room1->id,
                     'email' => 'lead3@example.com',
                 ],
                 [
                     'owner_user_id' => $landlord1->id,
-                    'name' => 'Lê Thuê Thành Công',
+                    'name' => 'Phạm Hoài Thương Lượng',
                     'phone' => '0911222333',
-                    'subject' => 'Chốt cọc phòng',
-                    'message' => 'Em đồng ý thuê phòng và muốn giữ chỗ đến đầu tháng sau.',
+                    'subject' => 'Có thể giữ phòng vài ngày không?',
+                    'message' => 'Em đang cân nhắc và muốn giữ phòng đến đầu tháng sau.',
                     'move_in_date' => now()->addDays(14)->toDateString(),
-                    'status' => 'successful',
-                    'status_note' => 'Khách đã đặt cọc và hẹn ký hợp đồng thuê.',
+                    'preferred_viewing_time' => 'Cuối tuần',
+                    'status' => LeadStatus::NEGOTIATING->value,
+                    'status_note' => 'Khách đang thương lượng giá và thời điểm dọn vào.',
+                    'next_follow_up_at' => now()->addDays(1)->setTime(10, 0),
+                    'source' => 'room_detail_form',
+                    'handled_by' => $admin?->id,
+                    'handled_at' => now()->subDay(),
+                ]
+            );
+
+            $contactLost = Contact::query()->updateOrCreate(
+                [
+                    'room_id' => $room1->id,
+                    'email' => 'lead4@example.com',
+                ],
+                [
+                    'owner_user_id' => $landlord1->id,
+                    'name' => 'Lê Ngân Sách Thấp',
+                    'phone' => '0909888777',
+                    'subject' => 'Tìm phòng dưới 3 triệu',
+                    'message' => 'Phòng đẹp nhưng hiện tại ngân sách của mình chưa phù hợp.',
+                    'move_in_date' => now()->addDays(20)->toDateString(),
+                    'preferred_viewing_time' => 'Sau 18:00',
+                    'status' => LeadStatus::LOST->value,
+                    'status_note' => 'Lead không chốt được.',
+                    'lost_reason' => 'Không phù hợp ngân sách của khách.',
+                    'source' => 'room_detail_form',
                     'handled_by' => $admin?->id,
                     'handled_at' => now()->subDays(2),
                 ]
             );
         }
 
-        if ($room4) {
-            Contact::query()->updateOrCreate(
+        if ($room2) {
+            $contactWon = Contact::query()->updateOrCreate(
                 [
-                    'room_id' => $room4->id,
-                    'email' => 'lead4@example.com',
+                    'room_id' => $room2->id,
+                    'email' => 'lead5@example.com',
                 ],
                 [
-                    'owner_user_id' => $landlord2->id,
-                    'name' => 'Phạm Ngân Sách Thấp',
-                    'phone' => '0909888777',
-                    'subject' => 'Tìm phòng dưới 4 triệu',
-                    'message' => 'Phòng đẹp nhưng ngân sách của mình chưa phù hợp.',
-                    'move_in_date' => now()->addDays(20)->toDateString(),
-                    'status' => 'unsuccessful',
-                    'status_note' => 'Lead không chốt do vượt ngân sách, có thể remark lại nếu có phòng rẻ hơn.',
+                    'owner_user_id' => $landlord1->id,
+                    'name' => 'Lê Thuê Thành Công',
+                    'phone' => '0933333333',
+                    'subject' => 'Chốt thuê phòng',
+                    'message' => 'Em đồng ý thuê phòng và muốn ký hợp đồng luôn.',
+                    'move_in_date' => now()->subMonths(1)->toDateString(),
+                    'preferred_viewing_time' => 'Đã xem trực tiếp',
+                    'status' => LeadStatus::WON->value,
+                    'status_note' => 'Khách đã chốt thuê, chuyển sang deal completed.',
+                    'source' => 'room_detail_form',
                     'handled_by' => $admin?->id,
-                    'handled_at' => now()->subDays(3),
+                    'handled_at' => now()->subDays(5),
                 ]
             );
         }
 
-        if ($room2) {
+        if ($room1 && $contactNegotiating) {
+            Booking::query()->updateOrCreate(
+                [
+                    'room_id' => $room1->id,
+                    'contact_id' => $contactNegotiating->id,
+                ],
+                [
+                    'tenant_user_id' => null,
+                    'tenant_name' => $contactNegotiating->name,
+                    'tenant_phone' => $contactNegotiating->phone,
+                    'tenant_email' => $contactNegotiating->email,
+                    'landlord_user_id' => $landlord1->id,
+                    'start_date' => now()->addDays(14)->toDateString(),
+                    'end_date' => now()->addMonths(6)->toDateString(),
+                    'agreed_price' => 3700000,
+                    'currency' => 'VND',
+                    'commission_percent' => 5,
+                    'commission_amount' => 185000,
+                    'status' => DealStatus::DRAFT->value,
+                    'note' => 'Deal đang ở bước thương lượng cuối.',
+                    'reserved_at' => null,
+                    'confirmed_at' => null,
+                    'cancelled_at' => null,
+                    'completed_at' => null,
+                ]
+            );
+        }
+
+        if ($room2 && $contactWon) {
             Booking::query()->updateOrCreate(
                 [
                     'room_id' => $room2->id,
-                    'tenant_user_id' => $tenant1->id,
+                    'contact_id' => $contactWon->id,
                 ],
                 [
+                    'tenant_user_id' => $tenant1->id,
+                    'tenant_name' => $contactWon->name,
+                    'tenant_phone' => $contactWon->phone,
+                    'tenant_email' => $contactWon->email,
                     'landlord_user_id' => $landlord1->id,
                     'start_date' => now()->subMonths(1)->toDateString(),
                     'end_date' => now()->addMonths(11)->toDateString(),
@@ -360,50 +447,26 @@ class DemoRoomSeeder extends Seeder
                     'currency' => 'VND',
                     'commission_percent' => 5,
                     'commission_amount' => 145000,
-                    'status' => 'occupied',
-                    'note' => 'Khách đã chuyển vào ở.',
+                    'status' => DealStatus::COMPLETED->value,
+                    'note' => 'Khách đã chuyển vào ở ổn định.',
+                    'reserved_at' => now()->subMonths(1)->subDays(3),
+                    'confirmed_at' => now()->subMonths(1)->subDays(2),
+                    'cancelled_at' => null,
+                    'completed_at' => now()->subMonths(1),
                 ]
             );
+        }
+
+        if ($room3) {
+            $room3->update([
+                'availability_status' => 'available',
+            ]);
         }
 
         if ($room4) {
-            Booking::query()->updateOrCreate(
-                [
-                    'room_id' => $room4->id,
-                    'tenant_user_id' => $tenant2->id,
-                ],
-                [
-                    'landlord_user_id' => $landlord2->id,
-                    'start_date' => now()->addDays(7)->toDateString(),
-                    'end_date' => now()->addMonths(6)->toDateString(),
-                    'agreed_price' => 5600000,
-                    'currency' => 'VND',
-                    'commission_percent' => 5,
-                    'commission_amount' => 280000,
-                    'status' => 'confirmed',
-                    'note' => 'Đã cọc, chờ ngày dọn vào.',
-                ]
-            );
-        }
-
-        if ($room1) {
-            Booking::query()->updateOrCreate(
-                [
-                    'room_id' => $room1->id,
-                    'tenant_user_id' => $tenant3->id,
-                ],
-                [
-                    'landlord_user_id' => $landlord1->id,
-                    'start_date' => null,
-                    'end_date' => null,
-                    'agreed_price' => 3800000,
-                    'currency' => 'VND',
-                    'commission_percent' => 5,
-                    'commission_amount' => 190000,
-                    'status' => 'pending',
-                    'note' => 'Khách đang cân nhắc và chưa chốt.',
-                ]
-            );
+            $room4->update([
+                'availability_status' => 'available',
+            ]);
         }
     }
 }

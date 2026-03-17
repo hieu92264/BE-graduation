@@ -22,11 +22,11 @@ class RolePermissionSeeder extends Seeder
             'org.sliders',
             'org.room-moderation',
             'org.contacts',
+            'org.bookings',
+            'org.reviews',
         ];
 
-        $landlordCodes = [
-            // landlord hiện dùng route riêng, chưa check.permission
-        ];
+        $landlordCodes = [];
 
         $this->syncPermissionsForRole(UserType::ADMIN->value, $adminCodes);
         $this->syncPermissionsForRole(UserType::LANDLORD->value, $landlordCodes);

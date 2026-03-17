@@ -5,9 +5,6 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('comments', function (Blueprint $table) {
@@ -17,10 +14,11 @@ return new class extends Migration {
 
             $table->text('content');
             $table->tinyInteger('rating')->nullable();
-            $table->enum('status', ['visible', 'hidden'])->default('visible')->index();
+            $table->enum('status', ['pending', 'visible', 'hidden'])->default('pending')->index();
 
             $table->timestamps();
             $table->softDeletes();
+
             $table->index(['room_id', 'status']);
         });
 
@@ -34,13 +32,11 @@ return new class extends Migration {
 
             $table->timestamps();
             $table->softDeletes();
+
             $table->index(['comment_id', 'status']);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('comment_replies');

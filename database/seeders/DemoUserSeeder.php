@@ -56,17 +56,17 @@ class DemoUserSeeder extends Seeder
                 'email' => 'staff02@trotot.vn',
                 'password' => '12345678',
                 'profile' => [
-                    'full_name' => 'Nhân viên chăm sóc KH',
+                    'full_name' => 'Nhân viên chăm sóc khách hàng',
                     'phone_number' => '0900000003',
                     'address' => 'Hà Nội',
                     'user_type' => UserType::ADMIN->value,
                     'zalo' => '0900000003',
                     'facebook' => null,
-                    'remark' => 'Nhân viên hỗ trợ liên hệ khách thuê',
+                    'remark' => 'Nhân viên hỗ trợ xử lý contact và lead',
                 ],
                 'employee' => [
                     'employee_code' => 'EMP002',
-                    'full_name' => 'Nhân viên chăm sóc KH',
+                    'full_name' => 'Nhân viên chăm sóc khách hàng',
                     'phone' => '0900000003',
                     'email' => 'staff02@trotot.vn',
                     'status' => WorkStatus::OFFICIAL->value,
@@ -184,7 +184,7 @@ class DemoUserSeeder extends Seeder
 
             $user->permissions()->sync($permissionIds);
 
-            if (!empty($item['employee'])) {
+            if (! empty($item['employee'])) {
                 Employee::query()->updateOrCreate(
                     ['employee_code' => $item['employee']['employee_code']],
                     [
