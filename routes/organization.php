@@ -37,6 +37,15 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::delete('/delete/{id}', 'destroy')->name('user-profiles.delete');
         });
 
+    Route::prefix('settings/profile')
+        ->middleware(['jwt.auth'])
+        ->controller(UserProfileController::class)
+        ->group(function () {
+            Route::get('/me', 'me');
+            Route::patch('/me', 'updateMe');
+            Route::post('/change-password', 'changeMyPassword');
+        });
+
     Route::prefix('employees')
         ->middleware(['check.permission:org.employees'])
         ->controller(\App\Http\Controllers\EmployeeController::class)->group(function () {
@@ -174,5 +183,12 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::get('/', 'index');
             Route::patch('/update-status/{id}', 'updateStatus');
             Route::patch('/{id}/status', 'updateStatus');
+        });
+
+    Route::prefix('dashboard')
+        ->middleware(['check.permission:org.dashboard'])
+        ->controller(\App\Http\Controllers\AdminDashboardController::class)
+        ->group(function () {
+            Route::get('/', 'index');
         });
 });

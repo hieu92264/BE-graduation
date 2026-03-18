@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Common\Constants\HttpStatus;
 use App\Http\Interfaces\UserProfileServiceInterface;
+use App\Models\UserProfiles;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserProfileController extends Controller
 {
@@ -58,5 +60,74 @@ class UserProfileController extends Controller
     {
         $this->userProfileService->delete($id);
         return $this->successResponse([], 'Deleted successfully', HttpStatus::NO_CONTENT);
+    }
+
+    public function me()
+    {
+        $user = auth('api')->user();
+        $user->load('profile');
+
+        return $this->successResponse([
+            'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
+            'profile' => $user->profile,
+        ], 'Fetched self profile successfully', HttpStatus::OK);
+    }
+
+    public function updateMe(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $data = $request->validate([
+            'full_name' => ['nullable', 'string', 'max:255'],
+            'phone_number' => ['nullable', 'string', 'max:50'],
+            'avatar_url' => ['nullable', 'string', 'max:1000'],
+            'address' => ['nullable', 'string', 'max:500'],
+            'zalo' => ['nullable', 'string', 'max:255'],
+            'facebook' => ['nullable', 'string', 'max:255'],
+            'remark' => ['nullable', 'string'],
+            'locale' => ['nullable', 'string', 'max:10'],
+        ]);
+
+        if (array_key_exists('locale', $data)) {
+            $user->locale = $data['locale'];
+            $user->save();
+        }
+
+        $profile = UserProfiles::query()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'full_name' => $data['full_name'] ?? null,
+                'phone_number' => $data['phone_number'] ?? null,
+                'avatar_url' => $data['avatar_url'] ?? null,
+                'address' => $data['address'] ?? null,
+                'zalo' => $data['zalo'] ?? null,
+                'facebook' => $data['facebook'] ?? null,
+                'remark' => $data['remark'] ?? null,
+            ]
+        );
+
+        return $this->successResponse([
+            'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
+            'profile' => $profile,
+        ], 'Updated self profile successfully', HttpStatus::OK);
+    }
+
+    public function changeMyPassword(Request $request)
+    {
+        $user = auth('api')->user();
+
+        $data = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        if (!Hash::check($data['current_password'], $user->password)) {
+            return $this->failedResponse('Current password is incorrect.', 422);
+        }
+
+        $user->password = $data['password'];
+        $user->save();
+
+        return $this->successResponse([], 'Changed password successfully', HttpStatus::OK);
     }
 }

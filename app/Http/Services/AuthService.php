@@ -198,14 +198,17 @@ class AuthService implements AuthServiceInterface
             return [];
         }
 
-        $user->load(['employee']);
+        $user->load(['employee', 'profile']);
 
         $permissions = ($user->username === 'admin')
             ? Permission::get()
             : $user->permissions;
 
         return [
-            'user' => $user->only(['id', 'username', 'email', 'isactive', 'locale']),
+            'user' => array_merge(
+                $user->only(['id', 'username', 'email', 'isactive', 'locale']),
+                ['profile' => $user->profile]
+            ),
             'employee' => $user->employee,
             'permissions' => $permissions,
         ];
