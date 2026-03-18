@@ -133,6 +133,12 @@ class PermissionSeeder extends Seeder
                 'url' => '/organizations/reviews',
                 'parent_id' => $operationId,
             ],
+            [
+                'code' => 'org.dashboard',
+                'name' => 'Dashboard admin',
+                'url' => '/organizations/dashboard',
+                'parent_id' => $orgId,
+            ],
         ];
 
         foreach ($children as $row) {

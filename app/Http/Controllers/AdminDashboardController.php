@@ -25,7 +25,7 @@ class AdminDashboardController extends Controller
             'total_contacts' => Contact::query()->count(),
             'new_contacts' => Contact::query()->where('status', 'new')->count(),
             'total_bookings' => Booking::query()->count(),
-            'won_bookings' => Booking::query()->where('deal_status', 'won')->count(),
+            'won_bookings' => Booking::query()->where('status', 'completed')->count(),
             'total_reviews' => Comment::query()->count(),
             'pending_reviews' => Comment::query()->where('status', 'pending')->count(),
         ];
@@ -52,11 +52,11 @@ class AdminDashboardController extends Controller
             ->values();
 
         $bookingStatusStats = Booking::query()
-            ->select('deal_status', DB::raw('COUNT(*) as total'))
-            ->groupBy('deal_status')
+            ->select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
             ->get()
             ->map(fn($item) => [
-                'status' => $item->deal_status ?: 'unknown',
+                'status' => $item->status ?: 'unknown',
                 'total' => (int)$item->total,
             ])
             ->values();
