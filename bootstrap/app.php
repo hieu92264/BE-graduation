@@ -2,6 +2,7 @@
 
 use App\Common\Constants\Environment;
 use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckUserType;
 use App\Http\Middleware\JwtMiddleware;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -42,7 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'jwt.auth' => JwtMiddleware::class,
-            'check.permission' => CheckPermission::class
+            'check.permission' => CheckPermission::class,
+            'check.user_type' => CheckUserType::class
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

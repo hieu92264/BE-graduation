@@ -24,12 +24,15 @@ class RolePermissionSeeder extends Seeder
             'org.contacts',
             'org.bookings',
             'org.reviews',
+            'org.dashboard',
         ];
 
         $landlordCodes = [];
+        $tenantCodes = [];
 
         $this->syncPermissionsForRole(UserType::ADMIN->value, $adminCodes);
         $this->syncPermissionsForRole(UserType::LANDLORD->value, $landlordCodes);
+        $this->syncPermissionsForRole(UserType::TENANT->value, $tenantCodes);
     }
 
     private function syncPermissionsForRole(string $role, array $codes): void

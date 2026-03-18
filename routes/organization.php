@@ -86,7 +86,7 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
             Route::delete('/delete/{id}', 'destroy')->name('post-types.delete');
         });
 
-    Route::prefix('landlord')->group(function () {
+    Route::prefix('landlord')->middleware(['check.user_type:landlord'])->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\LandlordDashboardController::class, 'index']);
 
         Route::prefix('rooms')

@@ -29,10 +29,6 @@ class CheckPermission
                 return $next($request);
             }
 
-            if (strtolower($user->username ?? '') === 'admin') {
-                return $next($request);
-            }
-
             if (!$user->hasPermission($permissionCode)) {
                 return $this->failedResponse(
                     'You do not have permission to access this resource.',

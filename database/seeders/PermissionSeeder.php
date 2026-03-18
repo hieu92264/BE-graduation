@@ -124,7 +124,7 @@ class PermissionSeeder extends Seeder
             [
                 'code' => 'org.bookings',
                 'name' => 'Quản lý booking/deal',
-                'url' => '/organizations/bookings',
+                'url' => '/organizations/deals',
                 'parent_id' => $operationId,
             ],
             [
