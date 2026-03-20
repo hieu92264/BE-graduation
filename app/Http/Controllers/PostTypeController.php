@@ -18,7 +18,7 @@ class PostTypeController extends Controller
         $query = PostType::query();
 
         if (!$request->boolean('all_status')) {
-            $query->where('isactive', true);
+            $query->where('isactive', 'Y');
         }
 
         $data = $query
@@ -46,7 +46,7 @@ class PostTypeController extends Controller
         $query = PostType::query();
 
         if (!$request->boolean('all_status')) {
-            $query->where('isactive', true);
+            $query->where('isactive', 'Y');
         }
 
         $data = $query
@@ -68,7 +68,7 @@ class PostTypeController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'isactive' => ['nullable', 'boolean'],
+            'isactive' => ['nullable'],
             'code' => ['required', 'string', 'max:50', 'unique:post_types,code'],
             'name' => ['required', 'string', 'max:255'],
             'priority' => ['nullable', 'integer', 'min:0'],
@@ -78,7 +78,7 @@ class PostTypeController extends Controller
         ]);
 
         $data = [
-            'isactive' => $validated['isactive'] ?? true,
+            'isactive' => $validated['isactive'] ?? 'Y',
             'code' => $validated['code'],
             'name' => $validated['name'],
             'priority' => $validated['priority'] ?? 0,
@@ -103,7 +103,7 @@ class PostTypeController extends Controller
         $postType = PostType::withoutGlobalScopes()->findOrFail($id);
 
         $validated = $request->validate([
-            'isactive' => ['nullable', 'boolean'],
+            'isactive' => ['nullable'],
             'code' => [
                 'required',
                 'string',

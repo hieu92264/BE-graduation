@@ -19,7 +19,7 @@ class LocationController extends Controller
         $query = City::query();
 
         if (!$request->boolean('all_status')) {
-            $query->where('isactive', true);
+            $query->where('isactive', 'Y');
         }
 
         $data = $query
@@ -42,7 +42,7 @@ class LocationController extends Controller
         $query = District::query();
 
         if (!$request->boolean('all_status')) {
-            $query->where('isactive', true);
+            $query->where('isactive', 'Y');
         }
 
         if ($request->filled('city_id')) {
@@ -70,7 +70,7 @@ class LocationController extends Controller
         $query = Ward::query();
 
         if (!$request->boolean('all_status')) {
-            $query->where('isactive', true);
+            $query->where('isactive', 'Y');
         }
 
         if ($request->filled('district_id')) {

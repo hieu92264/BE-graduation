@@ -15,9 +15,7 @@ class ContactToLandlordMail extends Mailable
     public function __construct(
         public Contact $contact,
         public ?Room   $room = null
-    )
-    {
-    }
+    ) {}
 
     public function build(): ContactToLandlordMail
     {
@@ -26,7 +24,8 @@ class ContactToLandlordMail extends Mailable
         $roomUrl = null;
         if ($this->room) {
             // Nếu bạn có FE: config('app.frontend_url') . "/rooms/{$this->room->id}"
-            $roomUrl = url("/rooms/{$this->room->id}");
+            // $roomUrl = url("/rooms/{$this->room->id}");
+            $roomUrl = config('app.frontend_url') . "/rooms/{$this->room->id}";
         }
 
         return $this->subject($subject)
