@@ -20,6 +20,7 @@ class StoreContactRequest extends FormRequest
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:2000'],
             'move_in_date' => ['nullable', 'date'],
+            'preferred_viewing_time' => ['nullable', 'string', 'max:255'],
             'room_id' => ['nullable', 'integer', 'exists:rooms,id'],
         ];
     }

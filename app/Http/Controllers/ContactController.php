@@ -17,6 +17,17 @@ class ContactController extends Controller
 
     public function store(StoreContactRequest $request, string $id): JsonResponse
     {
+        $tenantUser = auth('api')->user();
+
+        if (! $tenantUser) {
+            return $this->failedResponse('Vui lòng đăng nhập để gửi liên hệ.', 401);
+        }
+
+        $userType = $tenantUser->profile?->user_type?->value ?? $tenantUser->profile?->user_type;
+        if ((string) $userType !== 'tenant') {
+            return $this->failedResponse('Chỉ tài khoản người thuê mới được gửi liên hệ.', 403);
+        }
+
         $room = Room::with(['owner:id,email,username', 'owner.profile:user_id,full_name,phone_number'])
             ->withoutGlobalScopes()
             ->whereKey((int) $id)
@@ -43,6 +54,7 @@ class ContactController extends Controller
             'source' => 'room_detail_form',
             'room_id' => $room->id,
             'owner_user_id' => $room->owner_user_id,
+            'tenant_user_id' => $tenantUser->id,
         ]);
 
         Mail::to($landlordEmail)->send(new ContactToLandlordMail($contact, $room));

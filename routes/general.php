@@ -16,7 +16,8 @@ Route::get('locations/wards', [\App\Http\Controllers\LocationController::class, 
 
 Route::get('sliders', [SliderController::class, 'publicIndex']);
 
-Route::post('contact/{id}', [\App\Http\Controllers\ContactController::class, 'store']);
+Route::post('contact/{id}', [\App\Http\Controllers\ContactController::class, 'store'])
+    ->middleware(['jwt.auth', 'check.user_type:tenant']);
 
 Route::get('post-types', [PostTypeController::class, 'index']);
 Route::get('post-types/options', [PostTypeController::class, 'options']);

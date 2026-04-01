@@ -24,6 +24,8 @@ class ContactManagementController extends Controller
                 'owner.profile:id,user_id,full_name,phone_number',
                 'handledByUser:id,username,email',
                 'handledByUser.profile:id,user_id,full_name',
+                'tenant:id,username,email',
+                'tenant.profile:id,user_id,full_name,phone_number',
             ])
             ->latest('id');
 
@@ -31,6 +33,10 @@ class ContactManagementController extends Controller
 
         if ($scope === 'landlord') {
             $query->where('owner_user_id', $user->id);
+        }
+
+        if ($scope === 'tenant') {
+            $query->where('tenant_user_id', $user->id);
         }
 
         if ($keyword = trim((string) $request->input('keyword'))) {
@@ -71,10 +77,16 @@ class ContactManagementController extends Controller
                 'owner.profile:id,user_id,full_name,phone_number',
                 'handledByUser:id,username,email',
                 'handledByUser.profile:id,user_id,full_name',
+                'tenant:id,username,email',
+                'tenant.profile:id,user_id,full_name,phone_number',
             ])
             ->findOrFail($id);
 
         $scope = $request->string('scope')->toString();
+
+        if ($scope === 'tenant' && (int) $contact->tenant_user_id !== (int) $user->id) {
+            abort(403, 'Bạn không có quyền xem yêu cầu liên hệ này');
+        }
 
         if ($scope === 'landlord' && (int) $contact->owner_user_id !== (int) $user->id) {
             abort(403, 'Bạn không có quyền xem lead này');
@@ -105,6 +117,8 @@ class ContactManagementController extends Controller
                 'owner.profile:id,user_id,full_name,phone_number',
                 'handledByUser:id,username,email',
                 'handledByUser.profile:id,user_id,full_name',
+                'tenant:id,username,email',
+                'tenant.profile:id,user_id,full_name,phone_number',
             ])
             ->findOrFail($id);
 
@@ -168,6 +182,10 @@ class ContactManagementController extends Controller
         $data['owner_phone'] = $contact->owner?->profile?->phone_number;
         $data['handled_by_name'] = $contact->handledByUser?->profile?->full_name ?: $contact->handledByUser?->username;
 
+        $data['tenant_name'] = $contact->tenant?->profile?->full_name ?: $contact->tenant?->username;
+        $data['tenant_phone'] = $contact->tenant?->profile?->phone_number;
+        $data['tenant_email'] = $contact->tenant?->email;
+
         return $data;
     }
 
@@ -187,5 +205,17 @@ class ContactManagementController extends Controller
     {
         $request->merge(['scope' => 'landlord']);
         return $this->updateStatus($request, $id);
+    }
+
+    public function tenantIndex(Request $request): JsonResponse
+    {
+        $request->merge(['scope' => 'tenant']);
+        return $this->index($request);
+    }
+
+    public function tenantShow(Request $request, int $id): JsonResponse
+    {
+        $request->merge(['scope' => 'tenant']);
+        return $this->show($request, $id);
     }
 }

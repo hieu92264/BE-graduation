@@ -28,6 +28,7 @@ class Contact extends Model
         'source',
         'room_id',
         'owner_user_id',
+        'tenant_user_id',
         'handled_by',
         'handled_at',
     ];
@@ -52,6 +53,11 @@ class Contact extends Model
     public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_user_id');
+    }
+
+    public function tenant(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'tenant_user_id');
     }
 
     public function handledByUser(): BelongsTo

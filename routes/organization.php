@@ -191,4 +191,20 @@ Route::prefix('organizations')->middleware(['jwt.auth'])->group(function () {
         ->group(function () {
             Route::get('/', 'index');
         });
+
+    Route::prefix('tenant')->middleware(['check.user_type:tenant'])->group(function () {
+        Route::prefix('contacts')
+            ->controller(\App\Http\Controllers\ContactManagementController::class)
+            ->group(function () {
+                Route::get('/', 'tenantIndex');
+                Route::get('/{id}', 'tenantShow');
+            });
+
+        Route::prefix('bookings')
+            ->controller(\App\Http\Controllers\BookingController::class)
+            ->group(function () {
+                Route::get('/', 'tenantIndex');
+                Route::get('/{id}', 'tenantShow');
+            });
+    });
 });

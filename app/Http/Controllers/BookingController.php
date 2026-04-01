@@ -31,6 +31,10 @@ class BookingController extends Controller
             ])
             ->latest('id');
 
+        if ($request->boolean('tenant_mine')) {
+            $query->where('tenant_user_id', $user->id);
+        }
+
         if ($request->filled('keyword')) {
             $keyword = trim((string) $request->keyword);
             $query->where(function ($q) use ($keyword) {
@@ -65,8 +69,10 @@ class BookingController extends Controller
         return $this->paginate($rows, 'Lấy danh sách giao dịch thành công');
     }
 
-    public function show(int $id): JsonResponse
+    public function show(Request $request, int $id): JsonResponse
     {
+        $user = auth('api')->user();
+
         $booking = Booking::query()
             ->with([
                 'room:id,title,slug,address,price,owner_user_id,availability_status',
@@ -77,6 +83,14 @@ class BookingController extends Controller
                 'landlord.profile:id,user_id,full_name,phone_number',
             ])
             ->findOrFail($id);
+
+        if ($request->boolean('tenant_mine') && (int) $booking->tenant_user_id !== (int) $user->id) {
+            abort(403, 'Bạn không có quyền xem giao dịch này');
+        }
+
+        if ($request->boolean('mine') && (int) $booking->landlord_user_id !== (int) $user->id) {
+            abort(403, 'Bạn không có quyền xem giao dịch này');
+        }
 
         return $this->successResponse(
             $this->transformBooking($booking),
@@ -334,5 +348,17 @@ class BookingController extends Controller
         $data['landlord_phone'] = $booking->landlord?->profile?->phone_number;
 
         return $data;
+    }
+
+    public function tenantIndex(Request $request): JsonResponse
+    {
+        $request->merge(['tenant_mine' => true]);
+        return $this->index($request);
+    }
+
+    public function tenantShow(Request $request, int $id): JsonResponse
+    {
+        $request->merge(['tenant_mine' => true]);
+        return $this->show($request, $id);
     }
 }
