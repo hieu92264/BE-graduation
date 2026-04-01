@@ -26,7 +26,7 @@ class SliderController extends Controller
             ->map(fn ($slider) => $this->transformSlider($slider))
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách slider thành công', HttpStatus::OK);
     }
 
     public function index(): JsonResponse
@@ -38,7 +38,7 @@ class SliderController extends Controller
             ->map(fn ($slider) => $this->transformSlider($slider))
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy chi tiết slider thành công', HttpStatus::OK);
     }
 
     public function store(StoreSliderRequest $request): JsonResponse
@@ -58,7 +58,7 @@ class SliderController extends Controller
 
         return $this->successResponse(
             $this->transformSlider($slider->fresh()),
-            'Slider created successfully',
+            'Tạo slider thành công',
             HttpStatus::CREATED
         );
     }
@@ -86,7 +86,7 @@ class SliderController extends Controller
 
         return $this->successResponse(
             $this->transformSlider($slider->fresh()),
-            'Slider updated successfully',
+            'Cập nhật slider thành công',
             HttpStatus::OK
         );
     }
@@ -98,7 +98,7 @@ class SliderController extends Controller
         $this->deleteImageFromStorage($slider->image_url);
         $slider->delete();
 
-        return $this->successResponse([], 'Slider deleted successfully', HttpStatus::OK);
+        return $this->successResponse([], 'Xóa slider thành công', HttpStatus::OK);
     }
 
     private function saveImageToStorage(?UploadedFile $file): string

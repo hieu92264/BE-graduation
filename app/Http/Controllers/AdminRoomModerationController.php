@@ -52,7 +52,7 @@ class AdminRoomModerationController extends Controller
             ->paginate($perPage)
             ->through(fn (Room $room) => $this->transformRoom($room));
 
-        return $this->paginate($rooms, 'Fetched moderation rooms successfully');
+        return $this->paginate($rooms, 'Lấy danh sách phòng chờ duyệt thành công');
     }
 
     public function updateStatus(Request $request, int $id): JsonResponse
@@ -83,7 +83,7 @@ class AdminRoomModerationController extends Controller
 
         return $this->successResponse(
             $this->transformRoom($room),
-            'Updated room moderation successfully'
+            'Cập nhật trạng thái duyệt phòng thành công'
         );
     }
 

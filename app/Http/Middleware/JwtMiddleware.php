@@ -37,14 +37,14 @@ class JwtMiddleware
         } catch (TokenExpiredException $e) {
             return $this->DataResponse(
                 false,
-                'Token has expired',
+                'Token đã hết hạn',
                 HttpStatus::UNAUTHORIZED,
                 null
             );
         } catch (TokenInvalidException $e) {
             return $this->DataResponse(
                 false,
-                'Token is invalid',
+                'Token không hợp lệ',
                 HttpStatus::UNAUTHORIZED,
                 null
             );

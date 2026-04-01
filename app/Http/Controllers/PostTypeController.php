@@ -38,7 +38,7 @@ class PostTypeController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách loại bài đăng thành công', HttpStatus::OK);
     }
 
     public function options(Request $request): JsonResponse
@@ -62,7 +62,7 @@ class PostTypeController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy chi tiết loại bài đăng thành công', HttpStatus::OK);
     }
 
     public function store(Request $request): JsonResponse
@@ -93,7 +93,7 @@ class PostTypeController extends Controller
 
         return $this->successResponse(
             $postType->toArray(),
-            'Post type created successfully',
+            'Tạo loại bài đăng thành công',
             HttpStatus::CREATED
         );
     }
@@ -130,7 +130,7 @@ class PostTypeController extends Controller
 
         return $this->successResponse(
             $postType->fresh()->toArray(),
-            'Post type updated successfully',
+            'Cập nhật loại bài đăng thành công',
             HttpStatus::OK
         );
     }
@@ -140,6 +140,6 @@ class PostTypeController extends Controller
         $postType = PostType::withoutGlobalScopes()->findOrFail($id);
         $postType->delete();
 
-        return $this->successResponse([], 'Post type deleted successfully', HttpStatus::OK);
+        return $this->successResponse([], 'Xóa loại bài đăng thành công', HttpStatus::OK);
     }
 }

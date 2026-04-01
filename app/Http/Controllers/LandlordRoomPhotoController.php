@@ -31,7 +31,7 @@ class LandlordRoomPhotoController extends Controller
             ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
             ->toArray();
 
-        return $this->successResponse($photos, 'Fetched room photos successfully');
+        return $this->successResponse($photos, 'Lấy danh sách ảnh phòng thành công');
     }
 
     public function upload(Request $request, int $roomId): JsonResponse
@@ -50,7 +50,7 @@ class LandlordRoomPhotoController extends Controller
             $relativePath = $this->saveImageToStorage($request->file('image'));
 
             if (! Storage::disk('public')->exists($relativePath)) {
-                throw new \RuntimeException('Saved image not found in public storage.');
+                throw new \RuntimeException('Không tìm thấy ảnh đã lưu trong bộ nhớ công khai.');
             }
 
             $hasCover = $room->photos()->where('is_cover', true)->exists();
@@ -75,7 +75,7 @@ class LandlordRoomPhotoController extends Controller
 
             return $this->successResponse(
                 $this->transformPhoto($photo->fresh()),
-                'Uploaded room photo successfully',
+                'Tải ảnh phòng lên thành công',
                 HttpStatus::CREATED
             );
         } catch (\Throwable $e) {
@@ -117,7 +117,7 @@ class LandlordRoomPhotoController extends Controller
 
             return $this->successResponse(
                 $this->transformPhoto($photo->fresh()),
-                'Updated room photo successfully'
+                'Cập nhật ảnh phòng thành công'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -162,7 +162,7 @@ class LandlordRoomPhotoController extends Controller
                 ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
                 ->toArray();
 
-            return $this->successResponse($photos, 'Sorted room photos successfully');
+            return $this->successResponse($photos, 'Sắp xếp ảnh phòng thành công');
         } catch (\Throwable $e) {
             DB::rollBack();
 
@@ -202,7 +202,7 @@ class LandlordRoomPhotoController extends Controller
 
             DB::commit();
 
-            return $this->successResponse([], 'Deleted room photo successfully');
+            return $this->successResponse([], 'Xóa ảnh phòng thành công');
         } catch (\Throwable $e) {
             DB::rollBack();
 

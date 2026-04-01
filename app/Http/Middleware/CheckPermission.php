@@ -23,7 +23,7 @@ class CheckPermission
         try {
             $user = Auth::user();
 
-            if (!$user) return $this->failedResponse('Unauthenticated.', Response::HTTP_UNAUTHORIZED);
+            if (!$user) return $this->failedResponse('Người dùng chưa được xác thực.', Response::HTTP_UNAUTHORIZED);
 
             if (strtolower($user->username ?? '') === 'admin') {
                 return $next($request);
@@ -31,7 +31,7 @@ class CheckPermission
 
             if (!$user->hasPermission($permissionCode)) {
                 return $this->failedResponse(
-                    'You do not have permission to access this resource.',
+                    'Bạn không có quyền truy cập tài nguyên này.',
                     Response::HTTP_FORBIDDEN,
                     ['permission' => $permissionCode]
                 );
@@ -39,7 +39,7 @@ class CheckPermission
             return $next($request);
         } catch (Exception $e) {
             return $this->failedResponse(
-                'An error occurred while checking permissions.',
+                'Đã xảy ra lỗi khi kiểm tra quyền.',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['error' => $e->getMessage()]
             );

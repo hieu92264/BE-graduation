@@ -22,7 +22,7 @@ class UserProfileController extends Controller
         $data = $this->userProfileService->getAll();
         return $this->successResponse(
             $data->toArray(),
-            'Success',
+            'Lấy thông tin hồ sơ thành công',
             HttpStatus::OK
         );
     }
@@ -33,7 +33,7 @@ class UserProfileController extends Controller
     public function store(Request $request)
     {
         $data = $this->userProfileService->create($request->all());
-        return $this->successResponse($data->toArray(), 'Success', HttpStatus::CREATED);
+        return $this->successResponse($data->toArray(), 'Tạo hồ sơ thành công', HttpStatus::CREATED);
     }
 
     /**
@@ -50,7 +50,7 @@ class UserProfileController extends Controller
     public function update(Request $request, string $id)
     {
         $data = $this->userProfileService->update($id, $request->all());
-        return $this->successResponse($data->toArray(), 'Success', HttpStatus::OK);
+        return $this->successResponse($data->toArray(), 'Cập nhật hồ sơ thành công', HttpStatus::OK);
     }
 
     /**
@@ -59,7 +59,7 @@ class UserProfileController extends Controller
     public function destroy(string $id)
     {
         $this->userProfileService->delete($id);
-        return $this->successResponse([], 'Deleted successfully', HttpStatus::NO_CONTENT);
+        return $this->successResponse([], 'Xóa hồ sơ thành công', HttpStatus::NO_CONTENT);
     }
 
     public function me()
@@ -70,7 +70,7 @@ class UserProfileController extends Controller
         return $this->successResponse([
             'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
             'profile' => $user->profile,
-        ], 'Fetched self profile successfully', HttpStatus::OK);
+        ], 'Lấy hồ sơ cá nhân thành công', HttpStatus::OK);
     }
 
     public function updateMe(Request $request)
@@ -109,7 +109,7 @@ class UserProfileController extends Controller
         return $this->successResponse([
             'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
             'profile' => $profile,
-        ], 'Updated self profile successfully', HttpStatus::OK);
+        ], 'Cập nhật hồ sơ cá nhân thành công', HttpStatus::OK);
     }
 
     public function changeMyPassword(Request $request)
@@ -122,12 +122,12 @@ class UserProfileController extends Controller
         ]);
 
         if (!Hash::check($data['current_password'], $user->password)) {
-            return $this->failedResponse('Current password is incorrect.', 422);
+            return $this->failedResponse('Mật khẩu hiện tại không chính xác.', 422);
         }
 
         $user->password = $data['password'];
         $user->save();
 
-        return $this->successResponse([], 'Changed password successfully', HttpStatus::OK);
+        return $this->successResponse([], 'Đổi mật khẩu thành công', HttpStatus::OK);
     }
 }

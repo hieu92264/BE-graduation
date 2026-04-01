@@ -57,7 +57,7 @@ class ContactManagementController extends Controller
             ->paginate($perPage)
             ->through(fn(Contact $contact) => $this->transformContact($contact));
 
-        return $this->paginate($contacts, 'Fetched contacts successfully');
+        return $this->paginate($contacts, 'Lấy danh sách liên hệ thành công');
     }
 
     public function show(Request $request, int $id): JsonResponse
@@ -82,7 +82,7 @@ class ContactManagementController extends Controller
 
         return $this->successResponse(
             $this->transformContact($contact),
-            'Fetched contact detail successfully'
+            'Lấy chi tiết liên hệ thành công'
         );
     }
 
@@ -151,7 +151,7 @@ class ContactManagementController extends Controller
 
         return $this->successResponse(
             $this->transformContact($contact),
-            'Updated contact status successfully'
+            'Cập nhật trạng thái liên hệ thành công'
         );
     }
 

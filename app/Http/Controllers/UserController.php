@@ -237,11 +237,11 @@ class UserController extends Controller
                     ->exists();
 
             if ($activeEmailConflict) {
-                return $this->failedResponse('Email already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+                return $this->failedResponse('Email đã tồn tại.', HttpStatus::UNPROCESSABLE_ENTITY);
             }
 
             if ($activeUsernameConflict) {
-                return $this->failedResponse('Username already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+                return $this->failedResponse('Tên đăng nhập đã tồn tại.', HttpStatus::UNPROCESSABLE_ENTITY);
             }
 
             $user = DB::transaction(function () use ($existing, $data, &$needSendVerify) {
@@ -295,7 +295,7 @@ class UserController extends Controller
 
             return $this->successResponse(
                 $user->toArray(),
-                'User restored & updated successfully. Verification email sent.',
+                'Khôi phục và cập nhật người dùng thành công. Email xác thực đã được gửi.',
                 HttpStatus::OK
             );
         }
@@ -308,11 +308,11 @@ class UserController extends Controller
             User::whereNull('deleted_at')->where('username', $data['username'])->exists();
 
         if ($activeEmailExists) {
-            return $this->failedResponse('Email already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+            return $this->failedResponse('Email đã tồn tại.', HttpStatus::UNPROCESSABLE_ENTITY);
         }
 
         if ($activeUsernameExists) {
-            return $this->failedResponse('Username already exists.', HttpStatus::UNPROCESSABLE_ENTITY);
+            return $this->failedResponse('Tên đăng nhập đã tồn tại.', HttpStatus::UNPROCESSABLE_ENTITY);
         }
 
         $user = DB::transaction(function () use ($data, &$needSendVerify) {
@@ -354,7 +354,7 @@ class UserController extends Controller
 
         return $this->successResponse(
             $user->toArray(),
-            'User created successfully. Verification email sent.',
+            'Tạo người dùng thành công. Email xác thực đã được gửi.',
             HttpStatus::CREATED
         );
     }
@@ -515,7 +515,7 @@ class UserController extends Controller
             return $user->load('profile');
         });
 
-        return $this->successResponse($updated->toArray(), 'User updated successfully', HttpStatus::OK);
+        return $this->successResponse($updated->toArray(), 'Cập nhật người dùng thành công', HttpStatus::OK);
     }
     /**
      * Remove the specified resource from storage.
@@ -523,18 +523,18 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         $this->userService->delete($id);
-        return $this->successResponse([], 'Deleted successfully', HttpStatus::OK);
+        return $this->successResponse([], 'Xóa người dùng thành công', HttpStatus::OK);
     }
 
     public function getPermissions(string $id): JsonResponse
     {
         $data = $this->userService->getPermissions($id);
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách người dùng thành công', HttpStatus::OK);
     }
 
     public function syncPermissions(Request $request, string $id): JsonResponse
     {
         $data = $this->userService->syncPermissions($id, $request->input('permission_ids', []));
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy chi tiết người dùng thành công', HttpStatus::OK);
     }
 }

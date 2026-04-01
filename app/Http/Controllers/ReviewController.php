@@ -51,7 +51,7 @@ class ReviewController extends Controller
                 ->avg('rating'), 1),
         ];
 
-        return $this->paginate($rows, 'Fetched reviews successfully', 200, $summary);
+        return $this->paginate($rows, 'Lấy danh sách đánh giá thành công', 200, $summary);
     }
 
     public function store(Request $request, int $roomId): JsonResponse
@@ -119,7 +119,7 @@ class ReviewController extends Controller
 
         return $this->successResponse(
             $this->transformReply($reply),
-            'Created reply successfully',
+            'Tạo phản hồi thành công',
             201
         );
     }

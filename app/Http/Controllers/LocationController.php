@@ -34,7 +34,7 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách tỉnh/thành thành công', HttpStatus::OK);
     }
 
     public function district(Request $request): JsonResponse
@@ -62,7 +62,7 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách quận/huyện thành công', HttpStatus::OK);
     }
 
     public function ward(Request $request): JsonResponse
@@ -96,6 +96,6 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Success', HttpStatus::OK);
+        return $this->successResponse($data, 'Lấy danh sách phường/xã thành công', HttpStatus::OK);
     }
 }

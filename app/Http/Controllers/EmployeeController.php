@@ -19,7 +19,7 @@ class EmployeeController extends Controller
     {
         $result = $this->employeeService->getAll()->toArray();
 
-        return $this->DataResponse(true, 'success', HttpStatus::OK, $result);
+        return $this->DataResponse(true, 'Lấy danh sách nhân viên thành công', HttpStatus::OK, $result);
     }
 
     public function create(StoreEmployeeRequest $request): JsonResponse
@@ -27,7 +27,7 @@ class EmployeeController extends Controller
         $attributes = $request->validated();
         $result = $this->employeeService->create($attributes)->toArray();
 
-        return $this->DataResponse(true, 'success', HttpStatus::CREATED, $result);
+        return $this->DataResponse(true, 'Tạo nhân viên thành công', HttpStatus::CREATED, $result);
     }
 
     public function update(UpdateEmployeeRequest $request, string $id): JsonResponse
@@ -35,7 +35,7 @@ class EmployeeController extends Controller
         $attributes = $request->validated();
         $result = $this->employeeService->update((int)$id, $attributes)->toArray();
 
-        return $this->DataResponse(true, 'success', HttpStatus::CREATED, $result);
+        return $this->DataResponse(true, 'Cập nhật nhân viên thành công', HttpStatus::CREATED, $result);
     }
 
     public function delete(string $id)
@@ -53,6 +53,6 @@ class EmployeeController extends Controller
         $userId = $request->query('userId');
         $result = $this->employeeService->getUserOptions($userId);
 
-        return $this->DataResponse(true, 'success', HttpStatus::OK, $result);
+        return $this->DataResponse(true, 'Lấy chi tiết nhân viên thành công', HttpStatus::OK, $result);
     }
 }

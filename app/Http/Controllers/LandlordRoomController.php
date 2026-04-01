@@ -103,7 +103,7 @@ class LandlordRoomController extends Controller
             return $this->transformRoom($room);
         });
 
-        return $this->paginate($rooms, 'Fetched landlord rooms successfully');
+        return $this->paginate($rooms, 'Lấy danh sách phòng của chủ trọ thành công');
     }
 
     public function show(int $id): JsonResponse
@@ -125,7 +125,7 @@ class LandlordRoomController extends Controller
 
         return $this->successResponse(
             $this->transformRoom($room),
-            'Fetched room successfully'
+            'Lấy chi tiết phòng thành công'
         );
     }
 
@@ -179,7 +179,7 @@ class LandlordRoomController extends Controller
 
             return $this->successResponse(
                 $this->transformRoom($room),
-                'Room created successfully',
+                'Tạo phòng thành công',
                 HttpStatus::CREATED
             );
         } catch (\Throwable $e) {
@@ -247,7 +247,7 @@ class LandlordRoomController extends Controller
 
             return $this->successResponse(
                 $this->transformRoom($room),
-                'Room updated successfully'
+                'Cập nhật phòng thành công'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -273,7 +273,7 @@ class LandlordRoomController extends Controller
 
             DB::commit();
 
-            return $this->successResponse([], 'Room deleted successfully');
+            return $this->successResponse([], 'Xóa phòng thành công');
         } catch (\Throwable $e) {
             DB::rollBack();
 

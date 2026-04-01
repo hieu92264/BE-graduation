@@ -82,7 +82,7 @@ class LandlordDashboardController extends Controller
             ],
             'rooms_by_status' => $roomsByStatus,
             'latest_rooms' => $latestRooms,
-        ], 'Landlord dashboard fetched successfully');
+        ], 'Lấy dữ liệu dashboard chủ trọ thành công');
     }
 
     private function transformRoom(Room $room): array

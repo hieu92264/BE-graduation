@@ -35,7 +35,7 @@ class AuthController extends Controller
         $result = $this->authService->me();
         return $this->DataResponse(
             true,
-            'success',
+            'Lấy thông tin tài khoản thành công',
             HttpStatus::OK,
             $result
         );
@@ -123,7 +123,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Password has been reset successfully.',
+            'message' => 'Đặt lại mật khẩu thành công.',
         ]);
     }
 }

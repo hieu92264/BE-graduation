@@ -62,7 +62,7 @@ class BookingController extends Controller
             ->paginate($perPage)
             ->through(fn(Booking $booking) => $this->transformBooking($booking));
 
-        return $this->paginate($rows, 'Fetched deals successfully');
+        return $this->paginate($rows, 'Lấy danh sách giao dịch thành công');
     }
 
     public function show(int $id): JsonResponse
@@ -80,7 +80,7 @@ class BookingController extends Controller
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Fetched deal detail successfully'
+            'Lấy chi tiết giao dịch thành công'
         );
     }
 
@@ -184,7 +184,7 @@ class BookingController extends Controller
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Created deal successfully',
+            'Tạo giao dịch thành công',
             201
         );
     }
@@ -251,7 +251,7 @@ class BookingController extends Controller
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Updated deal successfully'
+            'Cập nhật giao dịch thành công'
         );
     }
 
@@ -273,7 +273,7 @@ class BookingController extends Controller
             }
         }
 
-        return $this->successResponse([], 'Deleted deal successfully');
+        return $this->successResponse([], 'Xóa giao dịch thành công');
     }
 
     private function syncRoomAvailability(Booking $booking): void

@@ -17,7 +17,7 @@ class CheckUserType
         $user = Auth::user();
 
         if (!$user) {
-            return $this->failedResponse('Unauthenticated.', Response::HTTP_UNAUTHORIZED);
+            return $this->failedResponse('Người dùng chưa được xác thực.', Response::HTTP_UNAUTHORIZED);
         }
 
         $actualType = $user->profile?->user_type?->value ?? $user->profile?->user_type;
@@ -27,7 +27,7 @@ class CheckUserType
         }
 
         return $this->failedResponse(
-            'You do not have the correct role to access this resource.',
+            'Bạn không có vai trò phù hợp để truy cập tài nguyên này.',
             Response::HTTP_FORBIDDEN,
             [
                 'allowed_types' => $allowedTypes,

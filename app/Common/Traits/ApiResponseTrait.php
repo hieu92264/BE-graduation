@@ -11,7 +11,7 @@ trait ApiResponseTrait
 {
     protected function DataResponse(
         bool   $success = false,
-        string $message = 'success',
+        string $message = 'Thành công',
         int    $code = HttpStatus::OK,
         ?array $data = []
     ): JsonResponse {
@@ -32,7 +32,7 @@ trait ApiResponseTrait
         return response()->json($payload, $code);
     }
 
-    protected function successResponse(array $data = [], string $message = 'Success', int $code = HttpStatus::OK): JsonResponse
+    protected function successResponse(array $data = [], string $message = 'Thành công', int $code = HttpStatus::OK): JsonResponse
     {
         return response()->json([
             'status' => ResponseStatus::SUCCESS,
@@ -44,7 +44,7 @@ trait ApiResponseTrait
         ], $code);
     }
 
-    protected function failedResponse(string $message = 'Error', int $code = HttpStatus::BAD_REQUEST, mixed $errors = null): JsonResponse
+    protected function failedResponse(string $message = 'Có lỗi xảy ra', int $code = HttpStatus::BAD_REQUEST, mixed $errors = null): JsonResponse
     {
         return response()->json([
             'status' => ResponseStatus::ERROR,
@@ -56,7 +56,7 @@ trait ApiResponseTrait
         ], $code);
     }
 
-    protected function paginate(LengthAwarePaginator $paginator, string $message = 'Success'): JsonResponse
+    protected function paginate(LengthAwarePaginator $paginator, string $message = 'Thành công'): JsonResponse
     {
         return response()->json([
             'status' => ResponseStatus::SUCCESS,

@@ -102,7 +102,7 @@ class RoomController extends Controller
             return $this->transformRoom($room);
         });
 
-        return $this->paginate($rooms, 'Search rooms successfully');
+        return $this->paginate($rooms, 'Tìm kiếm phòng thành công');
     }
 
     public function featured(): JsonResponse

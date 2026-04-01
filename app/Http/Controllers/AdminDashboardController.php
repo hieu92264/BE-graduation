@@ -81,6 +81,6 @@ class AdminDashboardController extends Controller
             'booking_status_stats' => $bookingStatusStats,
             'latest_contacts' => $latestContacts,
             'latest_rooms' => $latestRooms,
-        ], 'Admin dashboard fetched successfully');
+        ], 'Lấy dữ liệu dashboard quản trị thành công');
     }
 }

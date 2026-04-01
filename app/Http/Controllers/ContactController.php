@@ -28,7 +28,7 @@ class ContactController extends Controller
 
         $landlordEmail = $room->owner?->email;
         if (! $landlordEmail) {
-            return $this->failedResponse('Landlord email not found.', 404);
+            return $this->failedResponse('Không tìm thấy email của chủ trọ.', 404);
         }
 
         $contact = Contact::create([

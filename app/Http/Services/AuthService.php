@@ -23,7 +23,7 @@ class AuthService implements AuthServiceInterface
             if ($existingUser) {
                 return [
                     'success' => false,
-                    'message' => 'Username exists',
+                    'message' => 'Tên đăng nhập đã tồn tại',
                     'statusCode' => HttpStatus::CONFLICT,
                 ];
             }
@@ -40,12 +40,13 @@ class AuthService implements AuthServiceInterface
 
             return [
                 'success' => true,
-                'message' => 'User registered successfully',
+                'message' => 'Đăng ký tài khoản thành công',
                 'statusCode' => HttpStatus::CREATED,
                 'data' => $user->toArray(),
             ];
         } catch (Exception $e) {
             DB::rollBack();
+
             return [
                 'success' => false,
                 'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
@@ -64,10 +65,10 @@ class AuthService implements AuthServiceInterface
 
             $token = Auth::guard('api')->attempt($credentials);
 
-            if (!$token) {
+            if (! $token) {
                 return [
                     'success' => false,
-                    'message' => 'Email hoặc mật khẩu không chính xác',
+                    'message' => 'Tên đăng nhập hoặc mật khẩu không chính xác',
                     'statusCode' => HttpStatus::UNAUTHORIZED,
                 ];
             }
@@ -76,8 +77,9 @@ class AuthService implements AuthServiceInterface
                 ->where('username', $credentials['username'])
                 ->first();
 
-            if (!$user || !$user->hasVerifiedEmail()) {
+            if (! $user || ! $user->hasVerifiedEmail()) {
                 Auth::guard('api')->logout();
+
                 return [
                     'success' => false,
                     'message' => 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận.',
@@ -105,11 +107,11 @@ class AuthService implements AuthServiceInterface
 
     protected function respondWithToken(string $accessToken, string $refreshToken): array
     {
-        $ttl = (int)config('jwt.ttl');
+        $ttl = (int) config('jwt.ttl');
 
         return [
             'success' => true,
-            'message' => 'Login successful',
+            'message' => 'Đăng nhập thành công',
             'statusCode' => HttpStatus::OK,
             'data' => [
                 'access_token' => $accessToken,
@@ -123,10 +125,10 @@ class AuthService implements AuthServiceInterface
     public function logout(string $refreshToken): array
     {
         try {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return [
                     'success' => false,
-                    'message' => 'User not authenticated',
+                    'message' => 'Người dùng chưa được xác thực',
                     'statusCode' => HttpStatus::UNAUTHORIZED,
                 ];
             }
@@ -139,7 +141,7 @@ class AuthService implements AuthServiceInterface
 
             return [
                 'success' => true,
-                'message' => 'Successfully logged out',
+                'message' => 'Đăng xuất thành công',
                 'statusCode' => HttpStatus::OK,
             ];
         } catch (Exception $e) {
@@ -156,8 +158,11 @@ class AuthService implements AuthServiceInterface
         try {
             $storedToken = RefreshToken::where('token', $refreshToken)->first();
 
-            if (!$storedToken || $storedToken->expires_at->isPast()) {
-                if ($storedToken) $storedToken->delete();
+            if (! $storedToken || $storedToken->expires_at->isPast()) {
+                if ($storedToken) {
+                    $storedToken->delete();
+                }
+
                 return [
                     'success' => false,
                     'message' => 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
@@ -179,7 +184,6 @@ class AuthService implements AuthServiceInterface
                 'expires_at' => $absoluteExpiration,
             ]);
 
-
             return $this->respondWithToken($newAccessToken ?? '', $newRefreshTokenString);
         } catch (Exception $exception) {
             return [
@@ -194,7 +198,7 @@ class AuthService implements AuthServiceInterface
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return [];
         }
 
