@@ -103,7 +103,7 @@ class LandlordRoomController extends Controller
             return $this->transformRoom($room);
         });
 
-        return $this->paginate($rooms, 'Lấy danh sách phòng của chủ trọ thành công');
+        return $this->paginate($rooms, 'messages.room.landlord_list_success');
     }
 
     public function show(int $id): JsonResponse
@@ -125,7 +125,7 @@ class LandlordRoomController extends Controller
 
         return $this->successResponse(
             $this->transformRoom($room),
-            'Lấy chi tiết phòng thành công'
+            'messages.room.detail_success'
         );
     }
 
@@ -179,14 +179,14 @@ class LandlordRoomController extends Controller
 
             return $this->successResponse(
                 $this->transformRoom($room),
-                'Tạo phòng thành công',
+                'messages.room.create_success',
                 HttpStatus::CREATED
             );
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to create room',
+                'messages.room.create_failed',
                 HttpStatus::BAD_REQUEST,
                 [
                     'message' => $e->getMessage(),
@@ -247,13 +247,13 @@ class LandlordRoomController extends Controller
 
             return $this->successResponse(
                 $this->transformRoom($room),
-                'Cập nhật phòng thành công'
+                'messages.room.update_success'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to update room',
+                'messages.room.update_failed',
                 HttpStatus::BAD_REQUEST,
                 [
                     'message' => $e->getMessage(),
@@ -273,12 +273,12 @@ class LandlordRoomController extends Controller
 
             DB::commit();
 
-            return $this->successResponse([], 'Xóa phòng thành công');
+            return $this->successResponse([], 'messages.room.delete_success');
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to delete room',
+                'messages.room.delete_failed',
                 HttpStatus::BAD_REQUEST,
                 [
                     'message' => $e->getMessage(),
@@ -336,7 +336,7 @@ class LandlordRoomController extends Controller
                 ->where('slug', $slug)
                 ->exists()
         ) {
-            $slug = $base.'-'.$counter;
+            $slug = $base . '-' . $counter;
             $counter++;
         }
 
@@ -355,7 +355,7 @@ class LandlordRoomController extends Controller
                     $photo['photo_path'] = $photo['photo_url'] ?? null;
 
                     if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
-                        $photo['photo_url'] = asset('storage/'.ltrim($photo['photo_url'], '/'));
+                        $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
                     }
 
                     return $photo;

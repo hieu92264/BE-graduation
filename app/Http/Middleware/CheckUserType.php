@@ -16,18 +16,18 @@ class CheckUserType
     {
         $user = Auth::user();
 
-        if (!$user) {
-            return $this->failedResponse('Người dùng chưa được xác thực.', Response::HTTP_UNAUTHORIZED);
+        if (! $user) {
+            return $this->failedResponse('auth.unauthenticated', Response::HTTP_UNAUTHORIZED);
         }
 
         $actualType = $user->profile?->user_type?->value ?? $user->profile?->user_type;
 
-        if (empty($allowedTypes) || in_array((string)$actualType, $allowedTypes, true)) {
+        if (empty($allowedTypes) || in_array((string) $actualType, $allowedTypes, true)) {
             return $next($request);
         }
 
         return $this->failedResponse(
-            'Bạn không có vai trò phù hợp để truy cập tài nguyên này.',
+            'messages.authorization.role_denied',
             Response::HTTP_FORBIDDEN,
             [
                 'allowed_types' => $allowedTypes,

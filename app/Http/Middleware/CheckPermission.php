@@ -14,8 +14,6 @@ class CheckPermission
     use ApiResponseTrait;
 
     /**
-     * Handle an incoming request.
-     *
      * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next, string $permissionCode = ''): Response
@@ -23,23 +21,26 @@ class CheckPermission
         try {
             $user = Auth::user();
 
-            if (!$user) return $this->failedResponse('Người dùng chưa được xác thực.', Response::HTTP_UNAUTHORIZED);
+            if (! $user) {
+                return $this->failedResponse('auth.unauthenticated', Response::HTTP_UNAUTHORIZED);
+            }
 
             if (strtolower($user->username ?? '') === 'admin') {
                 return $next($request);
             }
 
-            if (!$user->hasPermission($permissionCode)) {
+            if (! $user->hasPermission($permissionCode)) {
                 return $this->failedResponse(
-                    'Bạn không có quyền truy cập tài nguyên này.',
+                    'messages.authorization.permission_denied',
                     Response::HTTP_FORBIDDEN,
                     ['permission' => $permissionCode]
                 );
             }
+
             return $next($request);
         } catch (Exception $e) {
             return $this->failedResponse(
-                'Đã xảy ra lỗi khi kiểm tra quyền.',
+                'messages.authorization.permission_check_failed',
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['error' => $e->getMessage()]
             );

@@ -20,12 +20,12 @@ class ContactController extends Controller
         $tenantUser = auth('api')->user();
 
         if (! $tenantUser) {
-            return $this->failedResponse('Vui lòng đăng nhập để gửi liên hệ.', 401);
+            return $this->failedResponse('messages.contact.login_required', 401);
         }
 
         $userType = $tenantUser->profile?->user_type?->value ?? $tenantUser->profile?->user_type;
         if ((string) $userType !== 'tenant') {
-            return $this->failedResponse('Chỉ tài khoản người thuê mới được gửi liên hệ.', 403);
+            return $this->failedResponse('messages.contact.tenant_only', 403);
         }
 
         $room = Room::with(['owner:id,email,username', 'owner.profile:user_id,full_name,phone_number'])
@@ -34,12 +34,12 @@ class ContactController extends Controller
             ->firstOrFail();
 
         if ($room->post_status !== 'approved') {
-            return $this->failedResponse('Phòng chưa sẵn sàng nhận liên hệ.', 422);
+            return $this->failedResponse('messages.contact.room_unavailable', 422);
         }
 
         $landlordEmail = $room->owner?->email;
         if (! $landlordEmail) {
-            return $this->failedResponse('Không tìm thấy email của chủ trọ.', 404);
+            return $this->failedResponse('messages.contact.landlord_email_not_found', 404);
         }
 
         $contact = Contact::create([
@@ -61,7 +61,7 @@ class ContactController extends Controller
 
         return $this->successResponse(
             $this->transformContact($contact->fresh(['room', 'owner.profile'])),
-            'Gửi liên hệ thành công',
+            'messages.contact.create_success',
             201
         );
     }

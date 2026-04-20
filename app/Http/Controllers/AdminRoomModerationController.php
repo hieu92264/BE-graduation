@@ -52,7 +52,7 @@ class AdminRoomModerationController extends Controller
             ->paginate($perPage)
             ->through(fn (Room $room) => $this->transformRoom($room));
 
-        return $this->paginate($rooms, 'Lấy danh sách phòng chờ duyệt thành công');
+        return $this->paginate($rooms, 'messages.room.moderation_list_success');
     }
 
     public function updateStatus(Request $request, int $id): JsonResponse
@@ -83,7 +83,7 @@ class AdminRoomModerationController extends Controller
 
         return $this->successResponse(
             $this->transformRoom($room),
-            'Cập nhật trạng thái duyệt phòng thành công'
+            'messages.room.moderation_update_success'
         );
     }
 
@@ -97,7 +97,7 @@ class AdminRoomModerationController extends Controller
                 $photo['photo_path'] = $photo['photo_url'] ?? null;
 
                 if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
-                    $photo['photo_url'] = asset('storage/'.ltrim($photo['photo_url'], '/'));
+                    $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
                 }
 
                 return $photo;

@@ -52,9 +52,9 @@ class ReviewModerationController extends Controller
 
         $rows = $query
             ->paginate($perPage)
-            ->through(fn(Comment $comment) => $this->transformComment($comment));
+            ->through(fn (Comment $comment) => $this->transformComment($comment));
 
-        return $this->paginate($rows, 'Lấy danh sách kiểm duyệt đánh giá thành công');
+        return $this->paginate($rows, 'messages.review_moderation.list_success');
     }
 
     public function updateStatus(Request $request, int $id): JsonResponse
@@ -85,7 +85,7 @@ class ReviewModerationController extends Controller
 
         return $this->successResponse(
             $this->transformComment($comment),
-            'Cập nhật trạng thái đánh giá thành công'
+            'messages.review_moderation.update_success'
         );
     }
 

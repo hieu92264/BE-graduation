@@ -18,7 +18,7 @@ class LocationController extends Controller
     {
         $query = City::query();
 
-        if (!$request->boolean('all_status')) {
+        if (! $request->boolean('all_status')) {
             $query->where('isactive', 'Y');
         }
 
@@ -34,14 +34,14 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy danh sách tỉnh/thành thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.location.city_success', HttpStatus::OK);
     }
 
     public function district(Request $request): JsonResponse
     {
         $query = District::query();
 
-        if (!$request->boolean('all_status')) {
+        if (! $request->boolean('all_status')) {
             $query->where('isactive', 'Y');
         }
 
@@ -62,14 +62,14 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy danh sách quận/huyện thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.location.district_success', HttpStatus::OK);
     }
 
     public function ward(Request $request): JsonResponse
     {
         $query = Ward::query();
 
-        if (!$request->boolean('all_status')) {
+        if (! $request->boolean('all_status')) {
             $query->where('isactive', 'Y');
         }
 
@@ -96,6 +96,6 @@ class LocationController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy danh sách phường/xã thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.location.ward_success', HttpStatus::OK);
     }
 }

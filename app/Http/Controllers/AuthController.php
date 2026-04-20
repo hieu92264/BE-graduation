@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -22,6 +23,7 @@ class AuthController extends Controller
     {
         $credentials = $request->validated();
         $result = $this->authService->login($credentials);
+
         return $this->DataResponse(
             $result['success'],
             $result['message'],
@@ -33,9 +35,10 @@ class AuthController extends Controller
     public function me(): JsonResponse
     {
         $result = $this->authService->me();
+
         return $this->DataResponse(
             true,
-            'Lấy thông tin tài khoản thành công',
+            'auth.account_info_retrieved',
             HttpStatus::OK,
             $result
         );
@@ -45,6 +48,7 @@ class AuthController extends Controller
     {
         $refreshToken = $request->input('refresh_token') ?? '';
         $result = $this->authService->logout($refreshToken);
+
         return $this->DataResponse(
             true,
             $result['message'],
@@ -57,6 +61,7 @@ class AuthController extends Controller
     {
         $refreshToken = $request->input('refresh_token') ?? '';
         $result = $this->authService->refreshToken($refreshToken);
+
         return $this->DataResponse(
             $result['success'],
             $result['message'],
@@ -69,6 +74,7 @@ class AuthController extends Controller
     {
         $data = $request->validated();
         $result = $this->authService->register($data);
+
         return $this->DataResponse(
             $result['success'],
             $result['message'],
@@ -77,28 +83,22 @@ class AuthController extends Controller
         );
     }
 
-    public function forgotPassword(Request $request)
+    public function forgotPassword(Request $request): JsonResponse
     {
         $data = $request->validate([
             'email' => ['required', 'email'],
         ]);
 
-        $status = Password::sendResetLink($data);
+        Password::sendResetLink($data);
 
-//        return $this->DataResponse(
-//            true,
-//            $status === Password::RESET_LINK_SENT ? 'Reset link sent to your email.' : 'Failed to send reset link.',
-//            $status === Password::RESET_LINK_SENT ? HttpStatus::OK : HttpStatus::BAD_REQUEST,
-//            ['status' => $status]
-//        );'
-        return response()->json([
-            'success' => true,
-            'message' => 'Nếu email tồn tại, chúng tôi đã gửi liên kết đặt lại mật khẩu.',
-            'status' => $status,
-        ]);
+        return $this->successResponse(
+            ['status' => 'passwords.sent'],
+            'auth.password_reset_link_sent',
+            HttpStatus::OK
+        );
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(Request $request): JsonResponse
     {
         $data = $request->validate([
             'token' => ['required', 'string'],
@@ -110,7 +110,7 @@ class AuthController extends Controller
             $data,
             function (User $user, string $password) {
                 $user->password = $password;
-                $user->setRememberToken(\Str::random(60));
+                $user->setRememberToken(Str::random(60));
                 $user->save();
             }
         );
@@ -121,9 +121,6 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Đặt lại mật khẩu thành công.',
-        ]);
+        return $this->successResponse([], 'auth.password_reset_success', HttpStatus::OK);
     }
 }

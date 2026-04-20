@@ -14,52 +14,41 @@ class UserProfileController extends Controller
     {
     }
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $data = $this->userProfileService->getAll();
+
         return $this->successResponse(
             $data->toArray(),
-            'Lấy thông tin hồ sơ thành công',
+            'messages.profile.list_success',
             HttpStatus::OK
         );
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $data = $this->userProfileService->create($request->all());
-        return $this->successResponse($data->toArray(), 'Tạo hồ sơ thành công', HttpStatus::CREATED);
+
+        return $this->successResponse($data->toArray(), 'messages.profile.create_success', HttpStatus::CREATED);
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         $data = $this->userProfileService->update($id, $request->all());
-        return $this->successResponse($data->toArray(), 'Cập nhật hồ sơ thành công', HttpStatus::OK);
+
+        return $this->successResponse($data->toArray(), 'messages.profile.update_success', HttpStatus::OK);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $this->userProfileService->delete($id);
-        return $this->successResponse([], 'Xóa hồ sơ thành công', HttpStatus::NO_CONTENT);
+
+        return $this->successResponse([], 'messages.profile.delete_success', HttpStatus::NO_CONTENT);
     }
 
     public function me()
@@ -70,7 +59,7 @@ class UserProfileController extends Controller
         return $this->successResponse([
             'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
             'profile' => $user->profile,
-        ], 'Lấy hồ sơ cá nhân thành công', HttpStatus::OK);
+        ], 'messages.profile.me_success', HttpStatus::OK);
     }
 
     public function updateMe(Request $request)
@@ -109,7 +98,7 @@ class UserProfileController extends Controller
         return $this->successResponse([
             'user' => $user->only(['id', 'username', 'email', 'locale', 'isactive']),
             'profile' => $profile,
-        ], 'Cập nhật hồ sơ cá nhân thành công', HttpStatus::OK);
+        ], 'messages.profile.update_me_success', HttpStatus::OK);
     }
 
     public function changeMyPassword(Request $request)
@@ -121,13 +110,13 @@ class UserProfileController extends Controller
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        if (!Hash::check($data['current_password'], $user->password)) {
-            return $this->failedResponse('Mật khẩu hiện tại không chính xác.', 422);
+        if (! Hash::check($data['current_password'], $user->password)) {
+            return $this->failedResponse('auth.current_password_incorrect', 422);
         }
 
         $user->password = $data['password'];
         $user->save();
 
-        return $this->successResponse([], 'Đổi mật khẩu thành công', HttpStatus::OK);
+        return $this->successResponse([], 'messages.profile.change_password_success', HttpStatus::OK);
     }
 }

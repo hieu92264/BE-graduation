@@ -82,7 +82,7 @@ class LandlordDashboardController extends Controller
             ],
             'rooms_by_status' => $roomsByStatus,
             'latest_rooms' => $latestRooms,
-        ], 'Lấy dữ liệu dashboard chủ trọ thành công');
+        ], 'messages.dashboard.landlord_success');
     }
 
     private function transformRoom(Room $room): array
@@ -91,11 +91,12 @@ class LandlordDashboardController extends Controller
 
         $data['post_type'] = $data['postType'] ?? null;
 
-        if (!empty($data['photos'])) {
+        if (! empty($data['photos'])) {
             $data['photos'] = collect($data['photos'])->map(function ($photo) {
-                if (!empty($photo['photo_url']) && !str_starts_with($photo['photo_url'], 'http')) {
+                if (! empty($photo['photo_url']) && ! str_starts_with($photo['photo_url'], 'http')) {
                     $photo['photo_url'] = asset('storage/' . ltrim($photo['photo_url'], '/'));
                 }
+
                 return $photo;
             })->values()->toArray();
         }

@@ -35,9 +35,9 @@ class AdminDashboardController extends Controller
             ->select('post_status', DB::raw('COUNT(*) as total'))
             ->groupBy('post_status')
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'status' => $item->post_status ?: 'unknown',
-                'total' => (int)$item->total,
+                'total' => (int) $item->total,
             ])
             ->values();
 
@@ -45,9 +45,9 @@ class AdminDashboardController extends Controller
             ->select('status', DB::raw('COUNT(*) as total'))
             ->groupBy('status')
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'status' => $item->status ?: 'unknown',
-                'total' => (int)$item->total,
+                'total' => (int) $item->total,
             ])
             ->values();
 
@@ -55,9 +55,9 @@ class AdminDashboardController extends Controller
             ->select('status', DB::raw('COUNT(*) as total'))
             ->groupBy('status')
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'status' => $item->status ?: 'unknown',
-                'total' => (int)$item->total,
+                'total' => (int) $item->total,
             ])
             ->values();
 
@@ -81,6 +81,6 @@ class AdminDashboardController extends Controller
             'booking_status_stats' => $bookingStatusStats,
             'latest_contacts' => $latestContacts,
             'latest_rooms' => $latestRooms,
-        ], 'Lấy dữ liệu dashboard quản trị thành công');
+        ], 'messages.dashboard.admin_success');
     }
 }

@@ -19,7 +19,7 @@ class EmployeeController extends Controller
     {
         $result = $this->employeeService->getAll()->toArray();
 
-        return $this->DataResponse(true, 'Lấy danh sách nhân viên thành công', HttpStatus::OK, $result);
+        return $this->DataResponse(true, 'messages.employee.list_success', HttpStatus::OK, $result);
     }
 
     public function create(StoreEmployeeRequest $request): JsonResponse
@@ -27,25 +27,25 @@ class EmployeeController extends Controller
         $attributes = $request->validated();
         $result = $this->employeeService->create($attributes)->toArray();
 
-        return $this->DataResponse(true, 'Tạo nhân viên thành công', HttpStatus::CREATED, $result);
+        return $this->DataResponse(true, 'messages.employee.create_success', HttpStatus::CREATED, $result);
     }
 
     public function update(UpdateEmployeeRequest $request, string $id): JsonResponse
     {
         $attributes = $request->validated();
-        $result = $this->employeeService->update((int)$id, $attributes)->toArray();
+        $result = $this->employeeService->update((int) $id, $attributes)->toArray();
 
-        return $this->DataResponse(true, 'Cập nhật nhân viên thành công', HttpStatus::CREATED, $result);
+        return $this->DataResponse(true, 'messages.employee.update_success', HttpStatus::CREATED, $result);
     }
 
     public function delete(string $id)
     {
-        $result = $this->employeeService->delete((int)$id);
+        $result = $this->employeeService->delete((int) $id);
         if ($result) {
-            return $this->DataResponse(true, 'Xóa nhân viên thành công', HttpStatus::OK, ['employeeId' => $id]);
+            return $this->DataResponse(true, 'messages.employee.delete_success', HttpStatus::OK, ['employeeId' => $id]);
         }
 
-        return $this->DataResponse(false, 'Xóa nhân viên thất bại', HttpStatus::BAD_REQUEST, null);
+        return $this->DataResponse(false, 'messages.employee.delete_failed', HttpStatus::BAD_REQUEST, null);
     }
 
     public function getUserOptions(Request $request): JsonResponse
@@ -53,6 +53,6 @@ class EmployeeController extends Controller
         $userId = $request->query('userId');
         $result = $this->employeeService->getUserOptions($userId);
 
-        return $this->DataResponse(true, 'Lấy chi tiết nhân viên thành công', HttpStatus::OK, $result);
+        return $this->DataResponse(true, 'messages.employee.detail_success', HttpStatus::OK, $result);
     }
 }

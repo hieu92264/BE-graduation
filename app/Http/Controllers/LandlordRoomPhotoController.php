@@ -28,10 +28,10 @@ class LandlordRoomPhotoController extends Controller
             ->orderBy('sort_order')
             ->orderBy('id')
             ->get()
-            ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
+            ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
             ->toArray();
 
-        return $this->successResponse($photos, 'Lấy danh sách ảnh phòng thành công');
+        return $this->successResponse($photos, 'messages.room_photo.list_success');
     }
 
     public function upload(Request $request, int $roomId): JsonResponse
@@ -50,7 +50,7 @@ class LandlordRoomPhotoController extends Controller
             $relativePath = $this->saveImageToStorage($request->file('image'));
 
             if (! Storage::disk('public')->exists($relativePath)) {
-                throw new \RuntimeException('Không tìm thấy ảnh đã lưu trong bộ nhớ công khai.');
+                throw new \RuntimeException('messages.room_photo.public_storage_file_not_found');
             }
 
             $hasCover = $room->photos()->where('is_cover', true)->exists();
@@ -75,14 +75,14 @@ class LandlordRoomPhotoController extends Controller
 
             return $this->successResponse(
                 $this->transformPhoto($photo->fresh()),
-                'Tải ảnh phòng lên thành công',
+                'messages.room_photo.upload_success',
                 HttpStatus::CREATED
             );
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to upload room photo',
+                'messages.room_photo.upload_failed',
                 HttpStatus::BAD_REQUEST,
                 ['message' => $e->getMessage()]
             );
@@ -117,13 +117,13 @@ class LandlordRoomPhotoController extends Controller
 
             return $this->successResponse(
                 $this->transformPhoto($photo->fresh()),
-                'Cập nhật ảnh phòng thành công'
+                'messages.room_photo.update_success'
             );
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to update room photo',
+                'messages.room_photo.update_failed',
                 HttpStatus::BAD_REQUEST,
                 ['message' => $e->getMessage()]
             );
@@ -159,15 +159,15 @@ class LandlordRoomPhotoController extends Controller
                 ->orderBy('sort_order')
                 ->orderBy('id')
                 ->get()
-                ->map(fn(RoomPhoto $photo) => $this->transformPhoto($photo))
+                ->map(fn (RoomPhoto $photo) => $this->transformPhoto($photo))
                 ->toArray();
 
-            return $this->successResponse($photos, 'Sắp xếp ảnh phòng thành công');
+            return $this->successResponse($photos, 'messages.room_photo.sort_success');
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to sort room photos',
+                'messages.room_photo.sort_failed',
                 HttpStatus::BAD_REQUEST,
                 ['message' => $e->getMessage()]
             );
@@ -202,12 +202,12 @@ class LandlordRoomPhotoController extends Controller
 
             DB::commit();
 
-            return $this->successResponse([], 'Xóa ảnh phòng thành công');
+            return $this->successResponse([], 'messages.room_photo.delete_success');
         } catch (\Throwable $e) {
             DB::rollBack();
 
             return $this->failedResponse(
-                'Failed to delete room photo',
+                'messages.room_photo.delete_failed',
                 HttpStatus::BAD_REQUEST,
                 ['message' => $e->getMessage()]
             );
@@ -225,7 +225,7 @@ class LandlordRoomPhotoController extends Controller
     private function saveImageToStorage(?UploadedFile $file): string
     {
         if (! $file) {
-            throw new \RuntimeException('Image file is required.');
+            throw new \RuntimeException('messages.common.image_file_required');
         }
 
         $fileNameWithoutExtension = now()->format('YmdHis') . '_' . Str::random(12);

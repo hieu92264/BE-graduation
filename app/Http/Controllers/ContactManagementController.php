@@ -61,9 +61,9 @@ class ContactManagementController extends Controller
 
         $contacts = $query
             ->paginate($perPage)
-            ->through(fn(Contact $contact) => $this->transformContact($contact));
+            ->through(fn (Contact $contact) => $this->transformContact($contact));
 
-        return $this->paginate($contacts, 'Lấy danh sách liên hệ thành công');
+        return $this->paginate($contacts, 'messages.contact.list_success');
     }
 
     public function show(Request $request, int $id): JsonResponse
@@ -85,16 +85,16 @@ class ContactManagementController extends Controller
         $scope = $request->string('scope')->toString();
 
         if ($scope === 'tenant' && (int) $contact->tenant_user_id !== (int) $user->id) {
-            abort(403, 'Bạn không có quyền xem yêu cầu liên hệ này');
+            abort(403, 'messages.contact.view_contact_forbidden');
         }
 
         if ($scope === 'landlord' && (int) $contact->owner_user_id !== (int) $user->id) {
-            abort(403, 'Bạn không có quyền xem lead này');
+            abort(403, 'messages.contact.view_lead_forbidden');
         }
 
         return $this->successResponse(
             $this->transformContact($contact),
-            'Lấy chi tiết liên hệ thành công'
+            'messages.contact.detail_success'
         );
     }
 
@@ -125,11 +125,11 @@ class ContactManagementController extends Controller
         $scope = $request->string('scope')->toString();
 
         if ($scope === 'landlord' && (int) $contact->owner_user_id !== (int) $user->id) {
-            abort(403, 'Bạn không có quyền cập nhật lead này');
+            abort(403, 'messages.contact.update_lead_forbidden');
         }
 
         if ($validated['status'] === LeadStatus::VIEWING_SCHEDULED->value && empty($validated['viewing_at'])) {
-            return $this->failedResponse('Vui lòng truyền viewing_at khi hẹn xem phòng.', 422);
+            return $this->failedResponse('messages.contact.viewing_at_required', 422);
         }
 
         $payload = [
@@ -165,7 +165,7 @@ class ContactManagementController extends Controller
 
         return $this->successResponse(
             $this->transformContact($contact),
-            'Cập nhật trạng thái liên hệ thành công'
+            'messages.contact.status_update_success'
         );
     }
 
@@ -192,30 +192,35 @@ class ContactManagementController extends Controller
     public function landlordIndex(Request $request): JsonResponse
     {
         $request->merge(['scope' => 'landlord']);
+
         return $this->index($request);
     }
 
     public function landlordShow(Request $request, int $id): JsonResponse
     {
         $request->merge(['scope' => 'landlord']);
+
         return $this->show($request, $id);
     }
 
     public function landlordUpdateStatus(Request $request, int $id): JsonResponse
     {
         $request->merge(['scope' => 'landlord']);
+
         return $this->updateStatus($request, $id);
     }
 
     public function tenantIndex(Request $request): JsonResponse
     {
         $request->merge(['scope' => 'tenant']);
+
         return $this->index($request);
     }
 
     public function tenantShow(Request $request, int $id): JsonResponse
     {
         $request->merge(['scope' => 'tenant']);
+
         return $this->show($request, $id);
     }
 }

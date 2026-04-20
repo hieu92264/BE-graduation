@@ -26,7 +26,7 @@ class SliderController extends Controller
             ->map(fn ($slider) => $this->transformSlider($slider))
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy danh sách slider thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.slider.list_success', HttpStatus::OK);
     }
 
     public function index(): JsonResponse
@@ -38,7 +38,7 @@ class SliderController extends Controller
             ->map(fn ($slider) => $this->transformSlider($slider))
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy chi tiết slider thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.slider.detail_success', HttpStatus::OK);
     }
 
     public function store(StoreSliderRequest $request): JsonResponse
@@ -58,7 +58,7 @@ class SliderController extends Controller
 
         return $this->successResponse(
             $this->transformSlider($slider->fresh()),
-            'Tạo slider thành công',
+            'messages.slider.create_success',
             HttpStatus::CREATED
         );
     }
@@ -86,7 +86,7 @@ class SliderController extends Controller
 
         return $this->successResponse(
             $this->transformSlider($slider->fresh()),
-            'Cập nhật slider thành công',
+            'messages.slider.update_success',
             HttpStatus::OK
         );
     }
@@ -98,13 +98,13 @@ class SliderController extends Controller
         $this->deleteImageFromStorage($slider->image_url);
         $slider->delete();
 
-        return $this->successResponse([], 'Xóa slider thành công', HttpStatus::OK);
+        return $this->successResponse([], 'messages.slider.delete_success', HttpStatus::OK);
     }
 
     private function saveImageToStorage(?UploadedFile $file): string
     {
-        if (!$file) {
-            throw new \RuntimeException('Image file is required.');
+        if (! $file) {
+            throw new \RuntimeException('messages.common.image_file_required');
         }
 
         $fileNameWithoutExtension = now()->format('YmdHis') . '_' . Str::random(12);
@@ -116,7 +116,7 @@ class SliderController extends Controller
         if ($originalExtension === 'webp') {
             Storage::disk('public')->putFileAs('sliders', $file, $fileNameWithoutExtension . '.webp');
         } else {
-            if (!is_dir(dirname($finalAbsolutePath))) {
+            if (! is_dir(dirname($finalAbsolutePath))) {
                 mkdir(dirname($finalAbsolutePath), 0777, true);
             }
 

@@ -38,7 +38,7 @@ class ReviewController extends Controller
 
         $rows = $query
             ->paginate($perPage)
-            ->through(fn(Comment $comment) => $this->transformComment($comment));
+            ->through(fn (Comment $comment) => $this->transformComment($comment));
 
         $summary = [
             'total_reviews' => Comment::query()
@@ -51,7 +51,7 @@ class ReviewController extends Controller
                 ->avg('rating'), 1),
         ];
 
-        return $this->paginate($rows, 'Lấy danh sách đánh giá thành công', 200, $summary);
+        return $this->paginate($rows, 'messages.review.list_success', 200, $summary);
     }
 
     public function store(Request $request, int $roomId): JsonResponse
@@ -81,7 +81,7 @@ class ReviewController extends Controller
 
         return $this->successResponse(
             $this->transformComment($comment),
-            'Đánh giá của bạn đã được gửi và đang chờ duyệt',
+            'messages.review.create_pending_success',
             201
         );
     }
@@ -102,7 +102,7 @@ class ReviewController extends Controller
             || (int) $comment->room?->owner_user_id === (int) $user->id;
 
         if (! $canReply) {
-            abort(403, 'Bạn không có quyền phản hồi review này');
+            abort(403, 'messages.review.reply_forbidden');
         }
 
         $reply = CommentReply::query()->create([
@@ -119,7 +119,7 @@ class ReviewController extends Controller
 
         return $this->successResponse(
             $this->transformReply($reply),
-            'Tạo phản hồi thành công',
+            'messages.review.reply_success',
             201
         );
     }
@@ -131,7 +131,7 @@ class ReviewController extends Controller
         $data['user_avatar'] = $comment->user?->profile?->avatar_url;
 
         $data['replies'] = collect($comment->replies ?? [])->map(
-            fn(CommentReply $reply) => $this->transformReply($reply)
+            fn (CommentReply $reply) => $this->transformReply($reply)
         )->values()->toArray();
 
         return $data;

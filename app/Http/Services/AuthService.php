@@ -23,7 +23,7 @@ class AuthService implements AuthServiceInterface
             if ($existingUser) {
                 return [
                     'success' => false,
-                    'message' => 'Tên đăng nhập đã tồn tại',
+                    'message' => 'auth.username_exists',
                     'statusCode' => HttpStatus::CONFLICT,
                 ];
             }
@@ -40,7 +40,7 @@ class AuthService implements AuthServiceInterface
 
             return [
                 'success' => true,
-                'message' => 'Đăng ký tài khoản thành công',
+                'message' => 'auth.register_success',
                 'statusCode' => HttpStatus::CREATED,
                 'data' => $user->toArray(),
             ];
@@ -49,7 +49,7 @@ class AuthService implements AuthServiceInterface
 
             return [
                 'success' => false,
-                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+                'message' => __('messages.common.system_error', ['error' => $e->getMessage()]),
                 'statusCode' => HttpStatus::INTERNAL_SERVER_ERROR,
             ];
         }
@@ -68,7 +68,7 @@ class AuthService implements AuthServiceInterface
             if (! $token) {
                 return [
                     'success' => false,
-                    'message' => 'Tên đăng nhập hoặc mật khẩu không chính xác',
+                    'message' => 'auth.failed',
                     'statusCode' => HttpStatus::UNAUTHORIZED,
                 ];
             }
@@ -82,7 +82,7 @@ class AuthService implements AuthServiceInterface
 
                 return [
                     'success' => false,
-                    'message' => 'Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để xác nhận.',
+                    'message' => 'auth.account_not_activated',
                     'statusCode' => HttpStatus::FORBIDDEN,
                 ];
             }
@@ -99,7 +99,7 @@ class AuthService implements AuthServiceInterface
         } catch (Exception $exception) {
             return [
                 'success' => false,
-                'message' => 'Lỗi hệ thống: ' . $exception->getMessage(),
+                'message' => __('messages.common.system_error', ['error' => $exception->getMessage()]),
                 'statusCode' => HttpStatus::INTERNAL_SERVER_ERROR,
             ];
         }
@@ -111,12 +111,12 @@ class AuthService implements AuthServiceInterface
 
         return [
             'success' => true,
-            'message' => 'Đăng nhập thành công',
+            'message' => 'auth.login_success',
             'statusCode' => HttpStatus::OK,
             'data' => [
                 'access_token' => $accessToken,
                 'token_type' => 'bearer',
-                'expires_in' => $ttl * 60, // giây
+                'expires_in' => $ttl * 60,
                 'refresh_token' => $refreshToken,
             ],
         ];
@@ -128,7 +128,7 @@ class AuthService implements AuthServiceInterface
             if (! Auth::check()) {
                 return [
                     'success' => false,
-                    'message' => 'Người dùng chưa được xác thực',
+                    'message' => 'auth.unauthenticated',
                     'statusCode' => HttpStatus::UNAUTHORIZED,
                 ];
             }
@@ -141,13 +141,13 @@ class AuthService implements AuthServiceInterface
 
             return [
                 'success' => true,
-                'message' => 'Đăng xuất thành công',
+                'message' => 'auth.logout_success',
                 'statusCode' => HttpStatus::OK,
             ];
         } catch (Exception $e) {
             return [
                 'success' => false,
-                'message' => 'Lỗi hệ thống: ' . $e->getMessage(),
+                'message' => __('messages.common.system_error', ['error' => $e->getMessage()]),
                 'statusCode' => HttpStatus::INTERNAL_SERVER_ERROR,
             ];
         }
@@ -165,7 +165,7 @@ class AuthService implements AuthServiceInterface
 
                 return [
                     'success' => false,
-                    'message' => 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ.',
+                    'message' => 'auth.session_invalid',
                     'statusCode' => HttpStatus::UNAUTHORIZED,
                 ];
             }
@@ -188,7 +188,7 @@ class AuthService implements AuthServiceInterface
         } catch (Exception $exception) {
             return [
                 'success' => false,
-                'message' => 'Lỗi hệ thống: ' . $exception->getMessage(),
+                'message' => __('messages.common.system_error', ['error' => $exception->getMessage()]),
                 'statusCode' => HttpStatus::INTERNAL_SERVER_ERROR,
             ];
         }

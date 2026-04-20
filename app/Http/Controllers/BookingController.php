@@ -64,9 +64,9 @@ class BookingController extends Controller
 
         $rows = $query
             ->paginate($perPage)
-            ->through(fn(Booking $booking) => $this->transformBooking($booking));
+            ->through(fn (Booking $booking) => $this->transformBooking($booking));
 
-        return $this->paginate($rows, 'Lấy danh sách giao dịch thành công');
+        return $this->paginate($rows, 'messages.booking.list_success');
     }
 
     public function show(Request $request, int $id): JsonResponse
@@ -85,16 +85,16 @@ class BookingController extends Controller
             ->findOrFail($id);
 
         if ($request->boolean('tenant_mine') && (int) $booking->tenant_user_id !== (int) $user->id) {
-            abort(403, 'Bạn không có quyền xem giao dịch này');
+            abort(403, 'messages.booking.view_forbidden');
         }
 
         if ($request->boolean('mine') && (int) $booking->landlord_user_id !== (int) $user->id) {
-            abort(403, 'Bạn không có quyền xem giao dịch này');
+            abort(403, 'messages.booking.view_forbidden');
         }
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Lấy chi tiết giao dịch thành công'
+            'messages.booking.detail_success'
         );
     }
 
@@ -121,7 +121,7 @@ class BookingController extends Controller
         $landlordUserId = (int) ($validated['landlord_user_id'] ?? $room->owner_user_id);
 
         if ($landlordUserId !== (int) $room->owner_user_id) {
-            return $this->failedResponse('Landlord không khớp với chủ của phòng.', 422);
+            return $this->failedResponse('messages.booking.landlord_mismatch', 422);
         }
 
         $contact = null;
@@ -130,15 +130,15 @@ class BookingController extends Controller
             $contact = Contact::query()->findOrFail((int) $validated['contact_id']);
 
             if ($contact->status->value !== 'won') {
-                return $this->failedResponse('Chỉ được tạo deal từ lead đã won.', 422);
+                return $this->failedResponse('messages.booking.won_lead_required', 422);
             }
 
             if ((int) $contact->room_id !== (int) $room->id) {
-                return $this->failedResponse('Lead không thuộc phòng này.', 422);
+                return $this->failedResponse('messages.booking.lead_room_mismatch', 422);
             }
 
             if ((int) $contact->owner_user_id !== (int) $landlordUserId) {
-                return $this->failedResponse('Lead không khớp với chủ phòng.', 422);
+                return $this->failedResponse('messages.booking.lead_owner_mismatch', 422);
             }
         }
 
@@ -148,14 +148,14 @@ class BookingController extends Controller
             ->exists();
 
         if ($activeDealExists) {
-            return $this->failedResponse('Phòng này đang có deal active.', 422);
+            return $this->failedResponse('messages.booking.active_deal_exists', 422);
         }
 
         $tenant = null;
         if (! empty($validated['tenant_user_id'])) {
             $tenant = User::query()->findOrFail((int) $validated['tenant_user_id']);
             if ($tenant->id === $landlordUserId) {
-                return $this->failedResponse('Tenant và landlord không được trùng nhau.', 422);
+                return $this->failedResponse('messages.booking.tenant_landlord_same', 422);
             }
         }
 
@@ -198,7 +198,7 @@ class BookingController extends Controller
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Tạo giao dịch thành công',
+            'messages.booking.create_success',
             201
         );
     }
@@ -265,7 +265,7 @@ class BookingController extends Controller
 
         return $this->successResponse(
             $this->transformBooking($booking),
-            'Cập nhật giao dịch thành công'
+            'messages.booking.update_success'
         );
     }
 
@@ -287,7 +287,7 @@ class BookingController extends Controller
             }
         }
 
-        return $this->successResponse([], 'Xóa giao dịch thành công');
+        return $this->successResponse([], 'messages.booking.delete_success');
     }
 
     private function syncRoomAvailability(Booking $booking): void
@@ -301,11 +301,13 @@ class BookingController extends Controller
 
         if ($status === DealStatus::RESERVED->value) {
             $room->update(['availability_status' => 'reserved']);
+
             return;
         }
 
         if (in_array($status, [DealStatus::CONFIRMED->value, DealStatus::COMPLETED->value], true)) {
             $room->update(['availability_status' => 'occupied']);
+
             return;
         }
 
@@ -353,12 +355,14 @@ class BookingController extends Controller
     public function tenantIndex(Request $request): JsonResponse
     {
         $request->merge(['tenant_mine' => true]);
+
         return $this->index($request);
     }
 
     public function tenantShow(Request $request, int $id): JsonResponse
     {
         $request->merge(['tenant_mine' => true]);
+
         return $this->show($request, $id);
     }
 }

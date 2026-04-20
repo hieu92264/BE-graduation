@@ -4,23 +4,24 @@ namespace App\Common\Traits;
 
 use App\Common\Constants\HttpStatus;
 use App\Common\Constants\ResponseStatus;
+use App\Common\Helpers\TranslationHelper;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 trait ApiResponseTrait
 {
     protected function DataResponse(
-        bool   $success = false,
-        string $message = 'Thành công',
-        int    $code = HttpStatus::OK,
+        bool $success = false,
+        string $message = 'messages.common.success',
+        int $code = HttpStatus::OK,
         ?array $data = []
     ): JsonResponse {
         $payload = [
             'status' => $success ? ResponseStatus::SUCCESS : ResponseStatus::ERROR,
-            'message' => $message,
+            'message' => TranslationHelper::translate($message),
             'statusCode' => $code,
             'path' => request()->path(),
-            'timestamp' => now()
+            'timestamp' => now(),
         ];
 
         if ($success) {
@@ -32,47 +33,57 @@ trait ApiResponseTrait
         return response()->json($payload, $code);
     }
 
-    protected function successResponse(array $data = [], string $message = 'Thành công', int $code = HttpStatus::OK): JsonResponse
-    {
+    protected function successResponse(
+        array $data = [],
+        string $message = 'messages.common.success',
+        int $code = HttpStatus::OK
+    ): JsonResponse {
         return response()->json([
             'status' => ResponseStatus::SUCCESS,
             'data' => $data,
-            'message' => $message,
+            'message' => TranslationHelper::translate($message),
             'statusCode' => $code,
             'path' => request()->path(),
-            'timestamp' => now()
+            'timestamp' => now(),
         ], $code);
     }
 
-    protected function failedResponse(string $message = 'Có lỗi xảy ra', int $code = HttpStatus::BAD_REQUEST, mixed $errors = null): JsonResponse
-    {
+    protected function failedResponse(
+        string $message = 'messages.common.error',
+        int $code = HttpStatus::BAD_REQUEST,
+        mixed $errors = null
+    ): JsonResponse {
         return response()->json([
             'status' => ResponseStatus::ERROR,
             'errors' => $errors,
-            'message' => $message,
+            'message' => TranslationHelper::translate($message),
             'statusCode' => $code,
             'path' => request()->path(),
-            'timestamp' => now()
+            'timestamp' => now(),
         ], $code);
     }
 
-    protected function paginate(LengthAwarePaginator $paginator, string $message = 'Thành công'): JsonResponse
-    {
+    protected function paginate(
+        LengthAwarePaginator $paginator,
+        string $message = 'messages.common.success',
+        int $code = HttpStatus::OK,
+        array $extraMeta = []
+    ): JsonResponse {
         return response()->json([
             'status' => ResponseStatus::SUCCESS,
-            'message' => $message,
-            'statusCode' => HttpStatus::OK,
+            'message' => TranslationHelper::translate($message),
+            'statusCode' => $code,
             'path' => request()->path(),
             'timestamp' => now(),
             'data' => $paginator->items(),
-            'meta' => [
+            'meta' => array_merge([
                 'current_page' => $paginator->currentPage(),
                 'last_page' => $paginator->lastPage(),
                 'per_page' => $paginator->perPage(),
                 'total' => $paginator->total(),
                 'next_page_url' => $paginator->nextPageUrl(),
                 'prev_page_url' => $paginator->previousPageUrl(),
-            ]
-        ], HttpStatus::OK);
+            ], $extraMeta),
+        ], $code);
     }
 }

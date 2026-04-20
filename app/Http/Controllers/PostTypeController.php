@@ -17,7 +17,7 @@ class PostTypeController extends Controller
     {
         $query = PostType::query();
 
-        if (!$request->boolean('all_status')) {
+        if (! $request->boolean('all_status')) {
             $query->where('isactive', 'Y');
         }
 
@@ -38,14 +38,14 @@ class PostTypeController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy danh sách loại bài đăng thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.post_type.list_success', HttpStatus::OK);
     }
 
     public function options(Request $request): JsonResponse
     {
         $query = PostType::query();
 
-        if (!$request->boolean('all_status')) {
+        if (! $request->boolean('all_status')) {
             $query->where('isactive', 'Y');
         }
 
@@ -62,7 +62,7 @@ class PostTypeController extends Controller
             ])
             ->toArray();
 
-        return $this->successResponse($data, 'Lấy chi tiết loại bài đăng thành công', HttpStatus::OK);
+        return $this->successResponse($data, 'messages.post_type.detail_success', HttpStatus::OK);
     }
 
     public function store(Request $request): JsonResponse
@@ -93,7 +93,7 @@ class PostTypeController extends Controller
 
         return $this->successResponse(
             $postType->toArray(),
-            'Tạo loại bài đăng thành công',
+            'messages.post_type.create_success',
             HttpStatus::CREATED
         );
     }
@@ -130,7 +130,7 @@ class PostTypeController extends Controller
 
         return $this->successResponse(
             $postType->fresh()->toArray(),
-            'Cập nhật loại bài đăng thành công',
+            'messages.post_type.update_success',
             HttpStatus::OK
         );
     }
@@ -140,6 +140,6 @@ class PostTypeController extends Controller
         $postType = PostType::withoutGlobalScopes()->findOrFail($id);
         $postType->delete();
 
-        return $this->successResponse([], 'Xóa loại bài đăng thành công', HttpStatus::OK);
+        return $this->successResponse([], 'messages.post_type.delete_success', HttpStatus::OK);
     }
 }

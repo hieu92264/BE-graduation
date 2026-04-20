@@ -19,8 +19,6 @@ class JwtMiddleware
     use ApiResponseTrait;
 
     /**
-     * Handle an incoming request.
-     *
      * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next): Response
@@ -28,33 +26,19 @@ class JwtMiddleware
         try {
             $user = JWTAuth::parseToken()->authenticate();
 
-            if (!$user) {
-                throw new AuthenticationException('User not found');
+            if (! $user) {
+                throw new AuthenticationException('auth.user_not_found');
             }
 
             Auth::setUser($user);
+
             return $next($request);
-        } catch (TokenExpiredException $e) {
-            return $this->DataResponse(
-                false,
-                'Token đã hết hạn',
-                HttpStatus::UNAUTHORIZED,
-                null
-            );
-        } catch (TokenInvalidException $e) {
-            return $this->DataResponse(
-                false,
-                'Token không hợp lệ',
-                HttpStatus::UNAUTHORIZED,
-                null
-            );
+        } catch (TokenExpiredException) {
+            return $this->DataResponse(false, 'auth.token_expired', HttpStatus::UNAUTHORIZED, null);
+        } catch (TokenInvalidException) {
+            return $this->DataResponse(false, 'auth.token_invalid', HttpStatus::UNAUTHORIZED, null);
         } catch (Exception $e) {
-            return $this->DataResponse(
-                false,
-                $e->getMessage(),
-                HttpStatus::UNAUTHORIZED,
-                null
-            );
+            return $this->DataResponse(false, $e->getMessage(), HttpStatus::UNAUTHORIZED, null);
         }
     }
 }
